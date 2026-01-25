@@ -12,7 +12,7 @@ import {
   BreadcrumbList, 
   BreadcrumbPage, 
   BreadcrumbSeparator 
-} from '@/components/ui/breadcrumb'
+} from '../ui/breadcrumb'
 import { 
   Folder, 
   FileText, 
@@ -35,8 +35,8 @@ import {
   FileArchive
 } from 'lucide-react'
 import { toast } from 'sonner'
-import FileExplorer from './file-explorer'
-import CodeEditor from './code-editor'
+import FileExplorer from '@/components/hosting/file-explorer'
+import CodeEditor from '@/components/hosting/code-editor'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { Label } from '@/components/ui/label'
 import JSZip from 'jszip'

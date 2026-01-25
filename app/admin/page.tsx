@@ -1,4 +1,4 @@
-import { getOrders, getUser } from '@/app/actions'
+import { getOrders, getUser, getAllUsers } from '@/app/actions'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -35,6 +35,7 @@ export default async function AdminPage() {
   }
 
   const orders = await getOrders()
+  const users = await getAllUsers()
 
   // Calculate stats
   const activeServices = orders.filter((o: any) => o.status === 'Active').length
