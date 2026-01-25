@@ -8,13 +8,21 @@ import { logout } from '@/app/actions'
 
 export default function DashboardNav({ email }: { email: string }) {
   const pathname = usePathname()
+  const isAdmin = pathname.startsWith('/admin')
   
-  const navItems = [
+  const clientNavItems = [
     { name: 'Services', href: '/dashboard' },
-    { name: 'Storage', href: '/dashboard/storage' },
+    { name: 'Storage', href: '/dashboard/storage' }, // Keeping for now, though might be instance specific
     { name: 'Billing', href: '/dashboard/billing' },
     { name: 'Account', href: '/dashboard/account' },
   ]
+
+  const adminNavItems = [
+    { name: 'Overview', href: '/admin' },
+    // Add more admin specific links if needed, e.g. Settings, Logs
+  ]
+
+  const navItems = isAdmin ? adminNavItems : clientNavItems
 
   return (
     <header className="border-b border-border bg-card">

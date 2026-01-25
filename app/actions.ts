@@ -133,6 +133,37 @@ export async function registerUserAndOrder(userData: any, orderData: any) {
   }
 }
 
+export async function createUser(userData: any) {
+  const cookieStore = await cookies()
+  const role = cookieStore.get('user_role')?.value
+  
+  if (role !== 'admin') {
+    throw new Error('Unauthorized')
+  }
+
+  try {
+    const users = await getUsersData()
+    
+    if (users.find((u: any) => u.email === userData.email)) {
+      return { error: 'User already exists' }
+    }
+
+    const newUser = {
+      id: Math.random().toString(36).substr(2, 9),
+      ...userData,
+      role: 'client', // Force role to client for now
+      createdAt: new Date().toISOString()
+    }
+
+    users.push(newUser)
+    await saveUsersData(users)
+    return { success: true }
+  } catch (error) {
+    console.error('Create user error:', error)
+    return { error: 'Failed to create user' }
+  }
+}
+
 export async function getAllUsers() {
   const cookieStore = await cookies()
   const role = cookieStore.get('user_role')?.value

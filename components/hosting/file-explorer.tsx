@@ -9,8 +9,7 @@ import {
   Archive, 
   File
 } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { formatBytes } from '@/lib/utils' // Need to ensure this exists or implement it inline
+import { cn, formatBytes } from '@/lib/utils'
 
 interface FileExplorerProps {
   files: FileItem[]
@@ -43,14 +42,6 @@ export default function FileExplorer({ files, isLoading, selectedFile, onFileCli
     }
     
     return <FileText className="h-10 w-10 text-gray-500" />
-  }
-
-  const formatSize = (bytes: number) => {
-    if (bytes === 0) return '0 B'
-    const k = 1024
-    const sizes = ['B', 'KB', 'MB', 'GB', 'TB']
-    const i = Math.floor(Math.log(bytes) / Math.log(k))
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
   }
 
   if (isLoading) {
@@ -89,7 +80,7 @@ export default function FileExplorer({ files, isLoading, selectedFile, onFileCli
                         {file.name}
                     </span>
                     <span className="text-xs text-muted-foreground mt-1">
-                        {file.isDirectory ? 'Folder' : formatSize(file.size || 0)}
+                        {file.isDirectory ? 'Folder' : formatBytes(file.size || 0)}
                     </span>
                 </div>
             ))}

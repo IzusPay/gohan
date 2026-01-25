@@ -130,7 +130,7 @@ export default function CreateOrderForm() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="price">Price</Label>
-                  <Input id="price" name="price" defaultValue="$3.00" readOnly />
+                  <Input id="price" name="price" defaultValue="$3.00" />
                 </div>
                 <input type="hidden" name="cpu" value="Shared" />
                 <input type="hidden" name="ram" value="Shared" />
