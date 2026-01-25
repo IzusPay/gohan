@@ -132,3 +132,21 @@ export async function getFileContent(key: string) {
         return null
     }
 }
+
+export async function saveFileContent(key: string, content: string) {
+    if (!R2_ACCOUNT_ID || !R2_BUCKET_NAME) return false
+
+    try {
+        const command = new PutObjectCommand({
+            Bucket: R2_BUCKET_NAME,
+            Key: key,
+            Body: Buffer.from(content),
+            ContentType: 'application/json',
+        })
+        await R2.send(command)
+        return true
+    } catch (error) {
+        console.error("Error saving file content:", error)
+        return false
+    }
+}

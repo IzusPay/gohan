@@ -4,23 +4,73 @@ import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import fs from 'fs/promises'
 import path from 'path'
+import { getFileContent, saveFileContent } from '@/lib/storage'
 
 const DB_PATH = path.join(process.cwd(), 'data', 'vps_orders.json')
 const USERS_DB_PATH = path.join(process.cwd(), 'data', 'users.json')
 
-async function getUsersData() {
+async function readDb(name: string) {
+  // Check if R2 is configured
+  const isR2 = !!process.env.R2_BUCKET_NAME
+  
+  if (isR2) {
+    console.log(`Reading ${name} from R2`)
+    const content = await getFileContent(`data/${name}`)
+    if (!content) return []
+    try {
+        return JSON.parse(content)
+    } catch {
+        return []
+    }
+  }
+  
+  // Local fs fallback
+  console.log(`Reading ${name} from local fs`)
+  const dbPath = path.join(process.cwd(), 'data', name)
   try {
-    const data = await fs.readFile(USERS_DB_PATH, 'utf-8')
-    return JSON.parse(data)
+      const content = await fs.readFile(dbPath, 'utf-8')
+      return JSON.parse(content)
   } catch (error) {
-    // If file doesn't exist, return empty array or default users if needed
-    // But we just created it, so it should exist.
-    return []
+      console.log(`File ${name} not found locally, returning empty array`)
+      return []
   }
 }
 
+async function writeDb(name: string, data: any) {
+  const isR2 = !!process.env.R2_BUCKET_NAME
+  
+  if (isR2) {
+    console.log(`Writing ${name} to R2`)
+    await saveFileContent(`data/${name}`, JSON.stringify(data, null, 2))
+    return
+  }
+  
+  // Local fs fallback
+  console.log(`Writing ${name} to local fs`)
+  const dbPath = path.join(process.cwd(), 'data', name)
+  const dataDir = path.dirname(dbPath)
+  try {
+      await fs.access(dataDir)
+  } catch {
+      await fs.mkdir(dataDir, { recursive: true })
+  }
+  await fs.writeFile(dbPath, JSON.stringify(data, null, 2))
+}
+
+async function getUsersData() {
+  return await readDb('users.json')
+}
+
 async function saveUsersData(users: any[]) {
-  await fs.writeFile(USERS_DB_PATH, JSON.stringify(users, null, 2))
+  await writeDb('users.json', users)
+}
+
+async function getOrdersData() {
+  return await readDb('vps_orders.json')
+}
+
+async function saveOrdersData(orders: any[]) {
+  await writeDb('vps_orders.json', orders)
 }
 
 export async function login(prevState: any, formData: FormData) {
@@ -32,17 +82,8 @@ export async function login(prevState: any, formData: FormData) {
   console.log('Users DB Path:', USERS_DB_PATH)
 
   try {
-    // Check if file exists
-    try {
-      await fs.access(USERS_DB_PATH)
-      console.log('Users file exists')
-    } catch (e) {
-      console.error('Users file DOES NOT exist at path:', USERS_DB_PATH)
-    }
-
     const users = await getUsersData()
     console.log('Users found (count):', users.length)
-    console.log('Users found (emails):', users.map((u: any) => u.email))
     
     const user = users.find((u: any) => 
       u.email.toLowerCase() === email.toLowerCase() && 
@@ -112,8 +153,7 @@ export async function registerUserAndOrder(userData: any, orderData: any) {
     }
 
     // Create Order
-    const ordersData = await fs.readFile(DB_PATH, 'utf-8').catch(() => '[]')
-    const orders = JSON.parse(ordersData)
+    const orders = await getOrdersData()
 
     const newOrder = {
       id: Math.random().toString(36).substr(2, 9),
@@ -124,7 +164,7 @@ export async function registerUserAndOrder(userData: any, orderData: any) {
     }
 
     orders.push(newOrder)
-    await fs.writeFile(DB_PATH, JSON.stringify(orders, null, 2))
+    await saveOrdersData(orders)
 
     return { success: true }
   } catch (error) {
@@ -210,23 +250,7 @@ export async function getOrders() {
   if (!role) return []
 
   try {
-    // Ensure data directory exists
-    const dataDir = path.dirname(DB_PATH)
-    try {
-      await fs.access(dataDir)
-    } catch {
-      await fs.mkdir(dataDir, { recursive: true })
-    }
-
-    // Ensure file exists
-    try {
-      await fs.access(DB_PATH)
-    } catch {
-      await fs.writeFile(DB_PATH, '[]', 'utf-8')
-    }
-
-    const data = await fs.readFile(DB_PATH, 'utf-8')
-    const orders = JSON.parse(data)
+    const orders = await getOrdersData()
 
     if (role === 'admin') {
       return orders
@@ -248,8 +272,7 @@ export async function createOrder(orderData: any) {
   }
 
   try {
-    const data = await fs.readFile(DB_PATH, 'utf-8')
-    const orders = JSON.parse(data)
+    const orders = await getOrdersData()
     
     const newOrder = {
       id: Math.random().toString(36).substr(2, 9),
@@ -260,7 +283,7 @@ export async function createOrder(orderData: any) {
     
     orders.push(newOrder)
     
-    await fs.writeFile(DB_PATH, JSON.stringify(orders, null, 2))
+    await saveOrdersData(orders)
     return { success: true }
   } catch (error) {
     console.error('Error creating order:', error)
@@ -277,8 +300,7 @@ export async function upgradeInstance(instanceId: string, newPlan: any) {
   }
 
   try {
-    const data = await fs.readFile(DB_PATH, 'utf-8')
-    const orders = JSON.parse(data)
+    const orders = await getOrdersData()
     
     const orderIndex = orders.findIndex((o: any) => o.id === instanceId)
     if (orderIndex === -1) {
@@ -296,7 +318,7 @@ export async function upgradeInstance(instanceId: string, newPlan: any) {
       // Keep other fields like id, ip, status, userEmail, createdAt
     }
     
-    await fs.writeFile(DB_PATH, JSON.stringify(orders, null, 2))
+    await saveOrdersData(orders)
     return { success: true }
   } catch (error) {
     console.error('Error upgrading instance:', error)
@@ -314,8 +336,7 @@ export async function getUser() {
 
 export async function getInstanceBySubdomain(subdomain: string) {
   try {
-    const data = await fs.readFile(DB_PATH, 'utf-8')
-    const orders = JSON.parse(data)
+    const orders = await getOrdersData()
     return orders.find((o: any) => o.subdomain === subdomain)
   } catch (error) {
     console.error('Error finding instance by subdomain:', error)
