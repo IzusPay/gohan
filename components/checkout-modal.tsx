@@ -18,7 +18,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { Loader2, Cpu, MemoryStick, HardDrive, Gauge, Globe, Shield, CheckCircle2 } from "lucide-react"
+import { registerUserAndOrder } from "@/app/actions"
+import { Loader2, Cpu, MemoryStick, HardDrive, Gauge, Globe, Shield, CheckCircle2, CreditCard, Bitcoin } from "lucide-react"
 
 interface Plan {
   name: string
@@ -62,9 +63,16 @@ export function CheckoutModal({ plan, open, onOpenChange }: CheckoutModalProps) 
     address: "",
     zipCode: "",
     phone: "",
+    cardNumber: "",
+    cardName: "",
+    cardExpiry: "",
+    cardCvc: "",
   })
   const [isLoading, setIsLoading] = useState(false)
   const [step, setStep] = useState(1)
+
+  const [paymentMethod, setPaymentMethod] = useState<'paypal' | 'credit_card' | 'crypto'>('paypal')
+  const [cryptoType, setCryptoType] = useState<'eth' | 'btc'>('eth')
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -75,19 +83,70 @@ export function CheckoutModal({ plan, open, onOpenChange }: CheckoutModalProps) 
     setFormData((prev) => ({ ...prev, country: value }))
   }
 
-  const handlePayPalCheckout = async () => {
+  const handleCheckout = async () => {
     if (!formData.firstName || !formData.lastName || !formData.email || !formData.country || !formData.address) {
       alert("Please fill in all required fields.")
       return
     }
 
+    if (paymentMethod === 'credit_card') {
+      // Validate card fields (simple check)
+      if (!formData.cardNumber || !formData.cardExpiry || !formData.cardCvc || !formData.cardName) {
+        alert("Please fill in all credit card details.")
+        return
+      }
+    }
+
     setIsLoading(true)
-    await new Promise((resolve) => setTimeout(resolve, 1500))
     
-    alert(`Redirecting to PayPal to complete your purchase of ${plan?.name} for $${plan?.price}/month...`)
-    setIsLoading(false)
-    onOpenChange(false)
-    setStep(1)
+    try {
+      // Simulate payment delay
+      await new Promise((resolve) => setTimeout(resolve, 1500))
+
+      const userData = {
+        email: formData.email,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        country: formData.country,
+        city: formData.city,
+        address: formData.address,
+        zipCode: formData.zipCode,
+        phone: formData.phone,
+        company: formData.company,
+      }
+
+      const orderData = {
+        planName: plan?.name,
+        price: `$${plan?.price}`,
+        cpu: plan?.cpu,
+        ram: plan?.ram,
+        storage: plan?.storage,
+        paymentMethod: paymentMethod,
+        cryptoType: paymentMethod === 'crypto' ? cryptoType : undefined,
+        cardLast4: paymentMethod === 'credit_card' ? formData.cardNumber.slice(-4) : undefined,
+      }
+
+      const result = await registerUserAndOrder(userData, orderData)
+
+      if (result.success) {
+        if (paymentMethod === 'paypal') {
+           alert(`Redirecting to PayPal... (Simulated)`)
+        } else if (paymentMethod === 'crypto') {
+           alert(`Order placed! Please transfer $${plan?.price} to the provided wallet address to activate your service.`)
+        } else {
+           alert(`Payment successful! Order created.`)
+        }
+        onOpenChange(false)
+        setStep(1)
+      } else {
+        alert('Failed to process order. Please try again.')
+      }
+    } catch (error) {
+      console.error('Checkout error:', error)
+      alert('An error occurred. Please try again.')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const handleClose = (open: boolean) => {
@@ -384,10 +443,135 @@ export function CheckoutModal({ plan, open, onOpenChange }: CheckoutModalProps) 
               </div>
 
               <div className="space-y-4">
+                <div className="grid grid-cols-3 gap-4 mb-4">
+                  <div 
+                    className={`border rounded-lg p-4 cursor-pointer flex flex-col items-center gap-2 transition-colors ${paymentMethod === 'paypal' ? 'border-primary bg-primary/5' : 'border-border hover:bg-muted/50'}`}
+                    onClick={() => setPaymentMethod('paypal')}
+                  >
+                    <svg className="h-8 w-8 text-[#0070ba]" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944 3.72a.767.767 0 0 1 .757-.648h6.833c2.268 0 3.936.514 4.957 1.53.936.932 1.305 2.235 1.098 3.875-.027.218-.063.44-.108.67-.448 2.29-1.497 3.888-3.115 4.75-1.568.835-3.575.977-5.33.977H8.23a.766.766 0 0 0-.757.648l-.398 2.815z" />
+                      <path d="M19.426 8.142c-.01.07-.023.14-.035.21-.638 3.273-2.817 4.398-5.607 4.398h-1.42a.688.688 0 0 0-.68.583l-.727 4.608-.206 1.306a.362.362 0 0 0 .357.42h2.504a.603.603 0 0 0 .596-.51l.025-.127.473-2.999.03-.163a.603.603 0 0 1 .596-.51h.376c2.432 0 4.336-.988 4.892-3.847.232-1.194.112-2.19-.502-2.892a2.404 2.404 0 0 0-.672-.477z" />
+                    </svg>
+                    <span className="font-medium text-sm">PayPal</span>
+                  </div>
+                  <div 
+                    className={`border rounded-lg p-4 cursor-pointer flex flex-col items-center gap-2 transition-colors ${paymentMethod === 'credit_card' ? 'border-primary bg-primary/5' : 'border-border hover:bg-muted/50'}`}
+                    onClick={() => setPaymentMethod('credit_card')}
+                  >
+                    <CreditCard className="h-8 w-8 text-primary" />
+                    <span className="font-medium text-sm">Card</span>
+                  </div>
+                  <div 
+                    className={`border rounded-lg p-4 cursor-pointer flex flex-col items-center gap-2 transition-colors ${paymentMethod === 'crypto' ? 'border-primary bg-primary/5' : 'border-border hover:bg-muted/50'}`}
+                    onClick={() => setPaymentMethod('crypto')}
+                  >
+                    <Bitcoin className="h-8 w-8 text-orange-500" />
+                    <span className="font-medium text-sm">Crypto</span>
+                  </div>
+                </div>
+
+                {paymentMethod === 'crypto' && (
+                  <div className="space-y-4 bg-muted/50 p-6 rounded-xl border border-border">
+                    <div className="flex justify-center gap-4 mb-4">
+                      <Button 
+                        variant={cryptoType === 'eth' ? "default" : "outline"}
+                        onClick={() => setCryptoType('eth')}
+                        className="flex-1"
+                      >
+                        Ethereum (ETH)
+                      </Button>
+                      <Button 
+                        variant={cryptoType === 'btc' ? "default" : "outline"}
+                        onClick={() => setCryptoType('btc')}
+                        className="flex-1"
+                      >
+                        Bitcoin (BTC)
+                      </Button>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label className="text-muted-foreground">Send {cryptoType.toUpperCase()} to this wallet address:</Label>
+                      <div className="p-4 bg-background border border-border rounded-lg break-all font-mono text-sm">
+                        {cryptoType === 'eth' 
+                          ? '0x837395d67a97dbbc4784d00e0e880ff385e49a0a'
+                          : 'bc1q5hg2c8flj94pcl97pqj7nndpcd4mn5rnf0mgxp'
+                        }
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-2">
+                        Your account will be activated once the transaction is confirmed.
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {paymentMethod === 'credit_card' && (
+                  <div className="space-y-4 bg-zinc-950 text-white p-6 rounded-xl border border-zinc-800 shadow-xl">
+                    <div className="flex justify-between items-center mb-2">
+                      <div className="text-xs text-zinc-400 uppercase tracking-widest">Black Card</div>
+                      <CreditCard className="h-5 w-5 text-zinc-400" />
+                    </div>
+                    
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="cardNumber" className="text-zinc-400 text-xs uppercase">Card Number</Label>
+                        <Input
+                          id="cardNumber"
+                          name="cardNumber"
+                          placeholder="0000 0000 0000 0000"
+                          value={formData.cardNumber}
+                          onChange={handleInputChange}
+                          className="bg-zinc-900 border-zinc-800 text-white placeholder:text-zinc-600 font-mono"
+                          maxLength={19}
+                        />
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="cardExpiry" className="text-zinc-400 text-xs uppercase">Expiry Date</Label>
+                          <Input
+                            id="cardExpiry"
+                            name="cardExpiry"
+                            placeholder="MM/YY"
+                            value={formData.cardExpiry}
+                            onChange={handleInputChange}
+                            className="bg-zinc-900 border-zinc-800 text-white placeholder:text-zinc-600 font-mono"
+                            maxLength={5}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="cardCvc" className="text-zinc-400 text-xs uppercase">CVC</Label>
+                          <Input
+                            id="cardCvc"
+                            name="cardCvc"
+                            placeholder="123"
+                            value={formData.cardCvc}
+                            onChange={handleInputChange}
+                            className="bg-zinc-900 border-zinc-800 text-white placeholder:text-zinc-600 font-mono"
+                            maxLength={4}
+                            type="password"
+                          />
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <Label htmlFor="cardName" className="text-zinc-400 text-xs uppercase">Cardholder Name</Label>
+                        <Input
+                          id="cardName"
+                          name="cardName"
+                          placeholder="JOHN DOE"
+                          value={formData.cardName}
+                          onChange={handleInputChange}
+                          className="bg-zinc-900 border-zinc-800 text-white placeholder:text-zinc-600 uppercase"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 <Button
-                  onClick={handlePayPalCheckout}
+                  onClick={handleCheckout}
                   disabled={isLoading}
-                  className="w-full bg-[#0070ba] hover:bg-[#005ea6] text-white h-14 text-lg font-semibold"
+                  className={`w-full h-14 text-lg font-semibold ${paymentMethod === 'paypal' ? 'bg-[#0070ba] hover:bg-[#005ea6]' : 'bg-primary hover:bg-primary/90'}`}
                 >
                   {isLoading ? (
                     <>
@@ -396,23 +580,32 @@ export function CheckoutModal({ plan, open, onOpenChange }: CheckoutModalProps) 
                     </>
                   ) : (
                     <>
-                      <svg
-                        className="mr-3 h-6 w-6"
-                        viewBox="0 0 24 24"
-                        fill="currentColor"
-                        aria-hidden="true"
-                      >
-                        <path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944 3.72a.767.767 0 0 1 .757-.648h6.833c2.268 0 3.936.514 4.957 1.53.936.932 1.305 2.235 1.098 3.875-.027.218-.063.44-.108.67-.448 2.29-1.497 3.888-3.115 4.75-1.568.835-3.575.977-5.33.977H8.23a.766.766 0 0 0-.757.648l-.398 2.815z" />
-                        <path d="M19.426 8.142c-.01.07-.023.14-.035.21-.638 3.273-2.817 4.398-5.607 4.398h-1.42a.688.688 0 0 0-.68.583l-.727 4.608-.206 1.306a.362.362 0 0 0 .357.42h2.504a.603.603 0 0 0 .596-.51l.025-.127.473-2.999.03-.163a.603.603 0 0 1 .596-.51h.376c2.432 0 4.336-.988 4.892-3.847.232-1.194.112-2.19-.502-2.892a2.404 2.404 0 0 0-.672-.477z" />
-                      </svg>
-                      Pay with PayPal
+                      {paymentMethod === 'paypal' ? (
+                        <>
+                          <svg
+                            className="mr-3 h-6 w-6"
+                            viewBox="0 0 24 24"
+                            fill="currentColor"
+                            aria-hidden="true"
+                          >
+                            <path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944 3.72a.767.767 0 0 1 .757-.648h6.833c2.268 0 3.936.514 4.957 1.53.936.932 1.305 2.235 1.098 3.875-.027.218-.063.44-.108.67-.448 2.29-1.497 3.888-3.115 4.75-1.568.835-3.575.977-5.33.977H8.23a.766.766 0 0 0-.757.648l-.398 2.815z" />
+                            <path d="M19.426 8.142c-.01.07-.023.14-.035.21-.638 3.273-2.817 4.398-5.607 4.398h-1.42a.688.688 0 0 0-.68.583l-.727 4.608-.206 1.306a.362.362 0 0 0 .357.42h2.504a.603.603 0 0 0 .596-.51l.025-.127.473-2.999.03-.163a.603.603 0 0 1 .596-.51h.376c2.432 0 4.336-.988 4.892-3.847.232-1.194.112-2.19-.502-2.892a2.404 2.404 0 0 0-.672-.477z" />
+                          </svg>
+                          Pay with PayPal
+                        </>
+                      ) : (
+                        <>
+                          <CreditCard className="mr-3 h-6 w-6" />
+                          Pay with Credit Card
+                        </>
+                      )}
                     </>
                   )}
                 </Button>
                 
                 <p className="text-xs text-muted-foreground text-center">
                   By completing this purchase, you agree to our Terms of Service and Privacy Policy.
-                  You will be redirected to PayPal to complete your payment securely.
+                  {paymentMethod === 'paypal' ? 'You will be redirected to PayPal.' : 'Your card will be charged securely.'}
                 </p>
               </div>
             </div>

@@ -6,6 +6,22 @@ import fs from 'fs/promises'
 import path from 'path'
 
 const DB_PATH = path.join(process.cwd(), 'data', 'vps_orders.json')
+const USERS_DB_PATH = path.join(process.cwd(), 'data', 'users.json')
+
+async function getUsersData() {
+  try {
+    const data = await fs.readFile(USERS_DB_PATH, 'utf-8')
+    return JSON.parse(data)
+  } catch (error) {
+    // If file doesn't exist, return empty array or default users if needed
+    // But we just created it, so it should exist.
+    return []
+  }
+}
+
+async function saveUsersData(users: any[]) {
+  await fs.writeFile(USERS_DB_PATH, JSON.stringify(users, null, 2))
+}
 
 export async function login(prevState: any, formData: FormData) {
   const email = (formData.get('email') as string || '').trim()
@@ -13,21 +29,110 @@ export async function login(prevState: any, formData: FormData) {
 
   console.log('Login attempt:', { email, passwordLength: password.length })
 
-  // Simple hardcoded authentication
-  if (email === 'pedronovaisengcp@gmail.com' && password === 'Pedila8486') {
-    (await cookies()).set('user_role', 'client');
-    (await cookies()).set('user_email', email);
-    redirect('/dashboard')
-  }
+  try {
+    const users = await getUsersData()
+    const user = users.find((u: any) => u.email === email && u.password === password)
 
-  if (email === 'ademir@gmail.com' && password === 'Pedila8486') {
-    (await cookies()).set('user_role', 'admin');
-    (await cookies()).set('user_email', email);
-    redirect('/admin')
+    if (user) {
+      if (user.status === 'inactive') {
+        return { error: 'Account is inactive. Please contact support.' }
+      }
+
+      (await cookies()).set('user_role', user.role);
+      (await cookies()).set('user_email', user.email);
+      
+      if (user.role === 'admin') {
+        redirect('/admin')
+      } else {
+        redirect('/dashboard')
+      }
+    }
+  } catch (error) {
+    console.error('Login error:', error)
   }
 
   return { error: 'Invalid email or password' }
 }
+
+export async function registerUserAndOrder(userData: any, orderData: any) {
+  try {
+    const users = await getUsersData()
+    
+    // Check if user exists
+    let user = users.find((u: any) => u.email === userData.email)
+    
+    if (!user) {
+      // Create new user
+      user = {
+        id: Math.random().toString(36).substr(2, 9),
+        email: userData.email,
+        password: 'ChangeMe123!', // Temporary password or handling logic
+        role: 'client',
+        status: 'inactive', // Default to inactive
+        firstName: userData.firstName,
+        lastName: userData.lastName,
+        ...userData // Store other details like address, phone
+      }
+      users.push(user)
+      await saveUsersData(users)
+    } else {
+      // If user exists, maybe update info? For now, just proceed.
+      // If user exists and is inactive, they stay inactive.
+    }
+
+    // Create Order
+    const ordersData = await fs.readFile(DB_PATH, 'utf-8').catch(() => '[]')
+    const orders = JSON.parse(ordersData)
+
+    const newOrder = {
+      id: Math.random().toString(36).substr(2, 9),
+      ...orderData,
+      userEmail: user.email,
+      status: 'Active', // Service is active, but user might be inactive
+      createdAt: new Date().toISOString()
+    }
+
+    orders.push(newOrder)
+    await fs.writeFile(DB_PATH, JSON.stringify(orders, null, 2))
+
+    return { success: true }
+  } catch (error) {
+    console.error('Registration error:', error)
+    return { error: 'Failed to process order' }
+  }
+}
+
+export async function getAllUsers() {
+  const cookieStore = await cookies()
+  const role = cookieStore.get('user_role')?.value
+  
+  if (role !== 'admin') {
+    throw new Error('Unauthorized')
+  }
+
+  return await getUsersData()
+}
+
+export async function updateUserStatus(userId: string, status: string) {
+  const cookieStore = await cookies()
+  const role = cookieStore.get('user_role')?.value
+  
+  if (role !== 'admin') {
+    throw new Error('Unauthorized')
+  }
+
+  const users = await getUsersData()
+  const userIndex = users.findIndex((u: any) => u.id === userId)
+  
+  if (userIndex !== -1) {
+    users[userIndex].status = status
+    await saveUsersData(users)
+    return { success: true }
+  }
+  
+  return { error: 'User not found' }
+}
+
 
 export async function logout() {
   (await cookies()).delete('user_role');

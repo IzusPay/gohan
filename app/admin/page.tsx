@@ -120,6 +120,14 @@ export default async function AdminPage() {
           {/* Instances List Section */}
           <div className="flex flex-col gap-4">
             <div className="flex items-center justify-between">
+              <h2 className="text-xl font-bold">Client Management</h2>
+            </div>
+            <UsersTable users={users} />
+          </div>
+
+          {/* Instances List Section */}
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center justify-between">
               <h2 className="text-xl font-bold">All Instances</h2>
             </div>
 

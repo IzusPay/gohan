@@ -1,0 +1,20 @@
+[
+  {
+    "id": "admin-1",
+    "email": "ademir@gmail.com",
+    "password": "Pedila8486",
+    "role": "admin",
+    "status": "active",
+    "firstName": "Ademir",
+    "lastName": "Admin"
+  },
+  {
+    "id": "client-1",
+    "email": "pedronovaisengcp@gmail.com",
+    "password": "Pedila8486",
+    "role": "client",
+    "status": "active",
+    "firstName": "Pedro",
+    "lastName": "Novais"
+  }
+]
