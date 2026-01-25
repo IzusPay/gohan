@@ -1,0 +1,27 @@
+[
+  {
+    "id": "1",
+    "planName": "VPS Starter",
+    "cpu": "2 vCPU",
+    "ram": "4 GB",
+    "storage": "80 GB NVMe",
+    "price": "$12.00",
+    "status": "Active",
+    "ip": "192.168.1.100",
+    "nextBilling": "2024-06-01",
+    "userEmail": "pedronovaisengcp@gmail.com"
+  },
+  {
+    "id": "bmj1rnnct",
+    "planName": "teset",
+    "cpu": "4 vCores",
+    "ram": "6GB",
+    "storage": "120GB SSD",
+    "price": "349,00",
+    "ip": "192.168.0.125",
+    "userEmail": "pedronovaisengcp@gmail.com",
+    "nextBilling": "2026-02-24",
+    "status": "Active",
+    "createdAt": "2026-01-25T01:32:23.248Z"
+  }
+]
