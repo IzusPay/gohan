@@ -11,6 +11,7 @@ export default function DashboardNav({ email }: { email: string }) {
   
   const navItems = [
     { name: 'Services', href: '/dashboard' },
+    { name: 'Storage', href: '/dashboard/storage' },
     { name: 'Billing', href: '/dashboard/billing' },
     { name: 'Account', href: '/dashboard/account' },
   ]

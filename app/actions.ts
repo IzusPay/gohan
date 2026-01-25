@@ -28,10 +28,34 @@ export async function login(prevState: any, formData: FormData) {
   const password = (formData.get('password') as string || '').trim()
 
   console.log('Login attempt:', { email, passwordLength: password.length })
+  console.log('CWD:', process.cwd())
+  console.log('Users DB Path:', USERS_DB_PATH)
 
   try {
+    // Check if file exists
+    try {
+      await fs.access(USERS_DB_PATH)
+      console.log('Users file exists')
+    } catch (e) {
+      console.error('Users file DOES NOT exist at path:', USERS_DB_PATH)
+    }
+
     const users = await getUsersData()
-    const user = users.find((u: any) => u.email === email && u.password === password)
+    console.log('Users found (count):', users.length)
+    console.log('Users found (emails):', users.map((u: any) => u.email))
+    
+    const user = users.find((u: any) => 
+      u.email.toLowerCase() === email.toLowerCase() && 
+      u.password === password
+    )
+
+    console.log('User match result:', user ? 'Found' : 'Not Found')
+    if (!user) {
+        console.log('Password comparison:', { 
+            provided: password, 
+            stored: users.find((u: any) => u.email.toLowerCase() === email.toLowerCase())?.password 
+        })
+    }
 
     if (user) {
       if (user.status === 'inactive') {
@@ -40,15 +64,22 @@ export async function login(prevState: any, formData: FormData) {
 
       (await cookies()).set('user_role', user.role);
       (await cookies()).set('user_email', user.email);
-      
-      if (user.role === 'admin') {
-        redirect('/admin')
-      } else {
-        redirect('/dashboard')
-      }
+    } else {
+        return { error: 'Invalid email or password' }
     }
   } catch (error) {
     console.error('Login error:', error)
+    return { error: 'An unexpected error occurred' }
+  }
+
+  // Perform redirect outside the try-catch block to avoid NEXT_REDIRECT error interception
+  const cookieStore = await cookies()
+  const role = cookieStore.get('user_role')?.value
+  
+  if (role === 'admin') {
+    redirect('/admin')
+  } else if (role) {
+    redirect('/dashboard')
   }
 
   return { error: 'Invalid email or password' }
@@ -248,4 +279,15 @@ export async function getUser() {
   const email = cookieStore.get('user_email')?.value
   
   return { role, email }
+}
+
+export async function getInstanceBySubdomain(subdomain: string) {
+  try {
+    const data = await fs.readFile(DB_PATH, 'utf-8')
+    const orders = JSON.parse(data)
+    return orders.find((o: any) => o.subdomain === subdomain)
+  } catch (error) {
+    console.error('Error finding instance by subdomain:', error)
+    return null
+  }
 }

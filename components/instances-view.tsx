@@ -41,7 +41,12 @@ interface InstancesViewProps {
   orders: Order[]
 }
 
+import { useRouter } from 'next/navigation'
+
+// ... existing imports ...
+
 export default function InstancesView({ orders }: InstancesViewProps) {
+  const router = useRouter()
   const [selectedInstanceId, setSelectedInstanceId] = useState<string | null>(null)
   const [isConnectModalOpen, setIsConnectModalOpen] = useState(false)
   const [isSecurityModalOpen, setIsSecurityModalOpen] = useState(false)
@@ -49,6 +54,14 @@ export default function InstancesView({ orders }: InstancesViewProps) {
   const [searchQuery, setSearchQuery] = useState('')
 
   const selectedOrder = orders.find(o => o.id === selectedInstanceId)
+
+  const handleRowClick = (order: any) => {
+    if (order.type === 'hosting') {
+      router.push(`/dashboard/hosting/${order.id}`)
+    } else {
+      setSelectedInstanceId(order.id === selectedInstanceId ? null : order.id)
+    }
+  }
 
   const handleConnect = () => {
     if (selectedInstanceId) {
@@ -177,7 +190,7 @@ export default function InstancesView({ orders }: InstancesViewProps) {
                 <TableRow 
                   key={order.id} 
                   className={selectedInstanceId === order.id ? 'bg-muted/50' : ''}
-                  onClick={() => setSelectedInstanceId(order.id === selectedInstanceId ? null : order.id)}
+                  onClick={() => handleRowClick(order)}
                 >
                   <TableCell>
                     <input 

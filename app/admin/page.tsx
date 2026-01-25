@@ -25,6 +25,7 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import CreateOrderForm from './create-order-form'
 import DashboardNav from '@/components/dashboard-nav'
+import UsersTable from '@/components/admin/users-table'
 
 export default async function AdminPage() {
   const { role, email } = await getUser()
@@ -172,6 +173,7 @@ export default async function AdminPage() {
                     <TableHead>Availability Zone</TableHead>
                     <TableHead>Public IPv4</TableHead>
                     <TableHead>Price</TableHead>
+                    <TableHead>Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -206,6 +208,13 @@ export default async function AdminPage() {
                         <TableCell>us-east-1a</TableCell>
                         <TableCell>{order.ip || '-'}</TableCell>
                         <TableCell>{order.price}</TableCell>
+                        <TableCell>
+                          <Link href={`/admin/storage/${order.id}`}>
+                            <Button variant="outline" size="sm">
+                              Manage Storage
+                            </Button>
+                          </Link>
+                        </TableCell>
                       </TableRow>
                     ))
                   )}
