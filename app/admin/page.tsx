@@ -30,6 +30,8 @@ import DashboardNav from '@/components/dashboard-nav'
 import UsersTable from '@/components/admin/users-table'
 import CreateUserDialog from '@/components/admin/create-user-dialog'
 
+import LeadsTable from '@/components/admin/leads-table'
+
 export default async function AdminPage() {
   const { role, email } = await getUser()
   
@@ -40,17 +42,45 @@ export default async function AdminPage() {
   const orders = await getOrders()
   const users = await getAllUsers()
 
+  const activeUsers = users.filter((u: any) => u.status !== 'inactive')
+  const leads = users.filter((u: any) => u.status === 'inactive')
+
   // Calculate stats
   const activeServices = orders.filter((o: any) => o.status === 'Active').length
   
   const totalBilling = orders.reduce((acc: number, o: any) => {
-    // Remove '$' and ',' then parse
-    const price = parseFloat(o.price.replace(/[^0-9.]/g, '')) || 0
+    // Robust parsing for price
+    const priceStr = o.price || ''
+    // Remove all non-numeric chars except . and ,
+    let clean = priceStr.replace(/[^0-9.,]/g, '')
+    
+    // Logic to handle 1.000,00 vs 1,000.00 vs 1000
+    if (clean.includes(',') && clean.includes('.')) {
+        if (clean.indexOf(',') > clean.indexOf('.')) {
+            // 1.000,00 -> 1000.00 (European/Brazilian)
+            clean = clean.replace(/\./g, '').replace(',', '.')
+        } else {
+            // 1,000.00 -> 1000.00 (US)
+            clean = clean.replace(/,/g, '')
+        }
+    } else if (clean.includes(',')) {
+        // 349,00 -> 349.00
+        clean = clean.replace(',', '.')
+    }
+    
+    const price = parseFloat(clean) || 0
     return acc + price
   }, 0)
 
   // Mock monthly billing (assuming all are monthly for this iteration)
   const monthlyBilling = totalBilling
+
+  const formatBRL = (value: number) => {
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL'
+    }).format(value)
+  }
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -70,6 +100,7 @@ export default async function AdminPage() {
               <TabsTrigger value="overview">Overview</TabsTrigger>
               <TabsTrigger value="services">Services & Instances</TabsTrigger>
               <TabsTrigger value="clients">Client Management</TabsTrigger>
+              <TabsTrigger value="leads">Leads (Inactive)</TabsTrigger>
             </TabsList>
 
             <TabsContent value="overview" className="space-y-4">
@@ -83,7 +114,7 @@ export default async function AdminPage() {
                     <DollarSign className="h-4 w-4 text-muted-foreground" />
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">${monthlyBilling.toFixed(2)}</div>
+                    <div className="text-2xl font-bold">{formatBRL(monthlyBilling)}</div>
                     <p className="text-xs text-muted-foreground">
                       +20.1% from last month
                     </p>
@@ -97,7 +128,7 @@ export default async function AdminPage() {
                     <CreditCard className="h-4 w-4 text-muted-foreground" />
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">${(totalBilling * 12).toFixed(2)}</div>
+                    <div className="text-2xl font-bold">{formatBRL(totalBilling * 12)}</div>
                     <p className="text-xs text-muted-foreground">
                       +180.1% from last year
                     </p>
@@ -236,7 +267,17 @@ export default async function AdminPage() {
                   <h2 className="text-xl font-bold">Client Management</h2>
                   <CreateUserDialog />
                 </div>
-                <UsersTable users={users} />
+                <UsersTable users={activeUsers} />
+              </div>
+            </TabsContent>
+
+            <TabsContent value="leads" className="space-y-4">
+              <div className="flex flex-col gap-4">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-xl font-bold">Leads (Inactive Users)</h2>
+                  <p className="text-muted-foreground">Users who registered but have not been activated yet.</p>
+                </div>
+                <LeadsTable leads={leads} />
               </div>
             </TabsContent>
           </Tabs>

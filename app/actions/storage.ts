@@ -2,6 +2,7 @@
 
 import { listFiles, getDownloadUrl, deleteFile, copyFile, getFileContent, R2 } from "@/lib/storage"
 import { PutObjectCommand } from "@aws-sdk/client-s3"
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner"
 import { revalidatePath } from "next/cache"
 import fs from 'fs/promises'
 import path from 'path'
@@ -201,6 +202,28 @@ export async function moveFileAction(oldKey: string, newPath: string) {
     } catch (error) {
         console.error('Move error:', error)
         return { error: 'Failed to move file' }
+    }
+}
+
+export async function getUploadUrlAction(instanceId: string, currentPath: string, filename: string, contentType: string) {
+    try {
+        const root = await getInstanceRoot(instanceId)
+        if (!root) return { error: 'Invalid instance' }
+        
+        const key = `${root}${currentPath}${filename}`.replace(/\/+/g, '/')
+        
+        const command = new PutObjectCommand({
+            Bucket: R2_BUCKET_NAME,
+            Key: key,
+            ContentType: contentType,
+        })
+        
+        const url = await getSignedUrl(R2, command, { expiresIn: 3600 })
+        
+        return { success: true, url, key }
+    } catch (error) {
+        console.error('Error generating presigned URL:', error)
+        return { error: 'Failed to generate upload URL' }
     }
 }
 

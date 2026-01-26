@@ -112,7 +112,31 @@ export default function CodeEditor({ file, onClose, onSave }: CodeEditorProps) {
             <Editor
                 value={code}
                 onValueChange={code => setCode(code)}
-                highlight={code => highlight(code, getLanguage(file.name), file.name.split('.').pop() || 'txt')}
+                highlight={code => {
+                    const lang = getLanguage(file.name)
+                    // Ensure grammar is defined. Fallback to markup, then clike, or return raw code.
+                    const grammar = lang || languages.markup || languages.clike
+                    
+                    const escapeHtml = (text: string) => {
+                        return text
+                            .replace(/&/g, "&amp;")
+                            .replace(/</g, "&lt;")
+                            .replace(/>/g, "&gt;")
+                            .replace(/"/g, "&quot;")
+                            .replace(/'/g, "&#039;")
+                    }
+
+                    if (!grammar) {
+                        return escapeHtml(code)
+                    }
+
+                    try {
+                        return highlight(code, grammar, file.name.split('.').pop() || 'txt')
+                    } catch (e) {
+                        console.error('Prism highlight error:', e)
+                        return escapeHtml(code)
+                    }
+                }}
                 padding={20}
                 className="font-mono min-h-full"
                 style={{

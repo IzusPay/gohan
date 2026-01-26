@@ -10,8 +10,8 @@ const DB_PATH = path.join(process.cwd(), 'data', 'vps_orders.json')
 const USERS_DB_PATH = path.join(process.cwd(), 'data', 'users.json')
 
 async function readDb(name: string) {
-  // Check if R2 is configured
-  const isR2 = !!process.env.R2_BUCKET_NAME
+  // Check if R2 is configured and we are in production
+  const isR2 = process.env.NODE_ENV === 'production' && !!process.env.R2_BUCKET_NAME
   
   if (isR2) {
     console.log(`Reading ${name} from R2`)
@@ -37,7 +37,7 @@ async function readDb(name: string) {
 }
 
 async function writeDb(name: string, data: any) {
-  const isR2 = !!process.env.R2_BUCKET_NAME
+  const isR2 = process.env.NODE_ENV === 'production' && !!process.env.R2_BUCKET_NAME
   
   if (isR2) {
     console.log(`Writing ${name} to R2`)

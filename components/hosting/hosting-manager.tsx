@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { getFiles, createFolder, removeFile, uploadFile, renameFileAction, moveFileAction, fetchFileContentAction, fetchFileContentBase64Action } from '@/app/actions/storage'
+import { getFiles, createFolder, removeFile, uploadFile, renameFileAction, moveFileAction, fetchFileContentAction, fetchFileContentBase64Action, getUploadUrlAction, getFileUrl } from '@/app/actions/storage'
 import { FileItem } from '@/lib/storage'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -10,29 +10,19 @@ import {
   BreadcrumbItem, 
   BreadcrumbLink, 
   BreadcrumbList, 
-  BreadcrumbPage, 
   BreadcrumbSeparator 
 } from '@/components/ui/breadcrumb'
 import { 
-  Folder, 
-  FileText, 
   Upload, 
-  Plus, 
-  Trash2, 
-  Download, 
-  MoreVertical, 
-  Edit, 
   ArrowLeft,
   RefreshCw,
   FolderPlus,
-  FileCode,
-  Image as ImageIcon,
-  Music,
-  Video,
-  Archive,
-  Scissors,
   ClipboardPaste,
-  FileArchive
+  Edit,
+  FileText,
+  Scissors,
+  FileArchive,
+  Trash2
 } from 'lucide-react'
 import { toast } from 'sonner'
 import FileExplorer from '@/components/hosting/file-explorer'
@@ -59,6 +49,8 @@ export default function HostingManager({ order }: HostingManagerProps) {
   const [isRenameOpen, setIsRenameOpen] = useState(false)
   const [newFolderName, setNewFolderName] = useState('')
   const [renameValue, setRenameValue] = useState('')
+  // Track which file is being renamed if triggered from context menu
+  const [fileToRename, setFileToRename] = useState<FileItem | null>(null)
 
   const loadFiles = useCallback(async () => {
     setIsLoading(true)
@@ -123,36 +115,42 @@ export default function HostingManager({ order }: HostingManagerProps) {
     }
   }
 
+  const openRenameDialog = (file: FileItem) => {
+      setFileToRename(file)
+      setRenameValue(file.name)
+      setIsRenameOpen(true)
+  }
+
   const handleRename = async () => {
-    if (!selectedFile || !renameValue) return
+    const targetFile = fileToRename || selectedFile
+    if (!targetFile || !renameValue) return
     
     // Check if name actually changed
-    if (selectedFile.name === renameValue) {
+    if (targetFile.name === renameValue) {
         setIsRenameOpen(false)
         return
     }
 
-    const oldKey = selectedFile.key
-    // Rename logic depends on keeping the path
-    // renameFileAction expects full old key and new NAME (not full key)
-    
+    const oldKey = targetFile.key
     const result = await renameFileAction(oldKey, renameValue)
     if (result.success) {
         toast.success('Renamed successfully')
         setIsRenameOpen(false)
         setRenameValue('')
         setSelectedFile(null)
+        setFileToRename(null)
         loadFiles()
     } else {
         toast.error(result.error as string)
     }
   }
 
-  const handleDelete = async () => {
-    if (!selectedFile) return
+  const handleDelete = async (file?: FileItem) => {
+    const targetFile = file || selectedFile
+    if (!targetFile) return
     
-    if (confirm(`Are you sure you want to delete ${selectedFile.name}?`)) {
-        const result = await removeFile(selectedFile.key, `/dashboard/hosting/${order.id}`)
+    if (confirm(`Are you sure you want to delete ${targetFile.name}?`)) {
+        const result = await removeFile(targetFile.key, `/dashboard/hosting/${order.id}`)
         if (result) {
             toast.success('File deleted')
             setSelectedFile(null)
@@ -163,92 +161,56 @@ export default function HostingManager({ order }: HostingManagerProps) {
     }
   }
 
-  const handleCut = () => {
-    if (selectedFile) {
-        setClipboard({ file: selectedFile, action: 'cut' })
-        toast.success(`Cut ${selectedFile.name}`)
+  const handleCut = (file?: FileItem) => {
+    const targetFile = file || selectedFile
+    if (targetFile) {
+        setClipboard({ file: targetFile, action: 'cut' })
+        toast.success(`Cut ${targetFile.name}`)
     }
   }
 
   const handlePaste = async () => {
     if (!clipboard) return
-
-    // Construct new key
-    // We need to know the root of the instance to construct full key?
-    // moveFileAction takes full oldKey and full newKey
-    // We need to append currentPath + filename to the instance root
-    // But wait, moveFileAction assumes we know the full destination path.
-    // The `currentPath` is relative to public_html.
-    // We need to find the instance root prefix.
-    // Actually, `uploadFile` handles constructing the key.
-    // `moveFileAction` is dumb, it just copies from A to B.
-    // We need to construct B.
-    // The `files` list has `key` (full key).
-    // We can infer the root from `files[0].key` minus `files[0].name` minus `currentPath`.
-    // Or just use the clipboard file key and replace the directory part.
-    
-    // Better way: use a new server action that takes (instanceId, currentPath, filename)
-    // But let's try to infer locally.
-    
-    // clipboard.file.key is like: websites/subdomain/public_html/folder/file.txt
-    // currentPath is like: folder2/
-    // We want: websites/subdomain/public_html/folder2/file.txt
-    
-    // We can find the "base" by stripping the old relative path.
-    // But we don't know the old relative path easily without context.
-    // However, we know `clipboard.file.key`.
-    // And we know the file name.
-    
-    // Let's ask the server to do the move by passing instanceId and destination relative path.
-    // But `moveFileAction` is generic.
-    
-    // Let's try to construct the path.
-    // The clipboard file key contains the full path.
-    // We want to replace the parent directory of the file with the current full directory.
-    // But we don't know the current full directory prefix (websites/subdomain/public_html).
-    // Wait, `getFiles` returns `key`.
-    // If there are files in the current directory, we can use their prefix.
-    // If empty, we are stuck.
-    
-    // Alternative: Pass `order.id` to a new `pasteFileAction`.
-    // I'll stick to `moveFileAction` but I need the full destination path.
-    // I will fetch the instance root using `getInstanceRoot` (I can expose it or use a helper).
-    
-    // Let's assume I can't easily get the root.
-    // I'll create `pasteFileAction(instanceId, currentPath, sourceKey)` in storage actions.
-    // This is safer.
-    // I'll skip implementing Paste for now or use a hack.
-    
-    // Hack: If `files` is not empty, use `files[0].key`'s directory.
-    // If empty, user can't paste? That's bad.
-    
-    // I will add `pasteFileAction` to server actions later.
-    // For now, let's implement Zip/Unzip.
     toast.error("Paste functionality requires server update. Implementing soon.")
   }
 
-  const handleZip = async () => {
-      if (!selectedFile) return
+  const handleDownload = async (file: FileItem) => {
+      const url = await getFileUrl(file.key)
+      if (url) {
+          window.open(url, '_blank')
+      } else {
+          toast.error('Failed to get download URL')
+      }
+  }
+
+  const handleZip = async (file?: FileItem) => {
+      const targetFile = file || selectedFile
+      if (!targetFile) return
       
       const zip = new JSZip()
       const toastId = toast.loading('Zipping...')
       
       try {
           // Download file content
-          const content = await fetchFileContentAction(selectedFile.key)
+          const content = await fetchFileContentAction(targetFile.key)
           if (content === null) throw new Error('Failed to download file')
           
-          zip.file(selectedFile.name, content)
+          zip.file(targetFile.name, content)
           const blob = await zip.generateAsync({ type: 'blob' })
-          const file = new File([blob], `${selectedFile.name}.zip`, { type: 'application/zip' })
+          const zipFile = new File([blob], `${targetFile.name}.zip`, { type: 'application/zip' })
           
-          // Upload
-          const formData = new FormData()
-          formData.append('file', file)
-          formData.append('instanceId', order.id)
-          formData.append('currentPath', currentPath)
+          // Upload using presigned URL for consistency
+          const { success, url, error } = await getUploadUrlAction(order.id, currentPath, zipFile.name, zipFile.type)
           
-          await uploadFile(formData)
+          if (!success || !url) {
+              throw new Error(error || 'Failed to get upload URL')
+          }
+          
+          await fetch(url, {
+              method: 'PUT',
+              body: zipFile
+          })
+          
           toast.success('Zipped successfully', { id: toastId })
           loadFiles()
       } catch (error) {
@@ -257,8 +219,9 @@ export default function HostingManager({ order }: HostingManagerProps) {
       }
   }
 
-  const handleUnzip = async () => {
-    if (!selectedFile || !selectedFile.name.endsWith('.zip')) {
+  const handleUnzip = async (file?: FileItem) => {
+    const targetFile = file || selectedFile
+    if (!targetFile || !targetFile.name.endsWith('.zip')) {
         toast.error('Please select a .zip file')
         return
     }
@@ -266,7 +229,7 @@ export default function HostingManager({ order }: HostingManagerProps) {
     const toastId = toast.loading('Unzipping...')
     
     try {
-        const base64Content = await fetchFileContentBase64Action(selectedFile.key)
+        const base64Content = await fetchFileContentBase64Action(targetFile.key)
         if (!base64Content) throw new Error('Failed to download file')
         
         const zip = new JSZip()
@@ -280,22 +243,15 @@ export default function HostingManager({ order }: HostingManagerProps) {
             
             const promise = zipEntry.async('blob').then(async (blob) => {
                 const file = new File([blob], zipEntry.name)
-                const formData = new FormData()
-                formData.append('file', file)
-                formData.append('instanceId', order.id)
-                // If the zip entry has a path, we should respect it relative to current path?
-                // For simplicity, let's extract to current folder + zip name folder?
-                // Or just current folder. Standard unzipping usually extracts to current folder.
-                // However, zipEntry.name might contain slashes (nested folders).
-                // My uploadFile action handles just filename usually, or full path?
-                // Let's check uploadFile action. It takes currentPath and file.name.
-                // If file.name has slashes, R2 treats it as folders.
-                // So passing zipEntry.name as file.name should work if uploadFile respects it.
-                // But uploadFile does: key = `${root}${currentPath}${file.name}`
-                // If zipEntry.name is "folder/file.txt", and currentPath is "public_html/", key becomes "public_html/folder/file.txt". Correct.
                 
-                formData.append('currentPath', currentPath)
-                return uploadFile(formData)
+                // Get Presigned URL
+                const { success, url } = await getUploadUrlAction(order.id, currentPath, file.name, file.type || 'application/octet-stream')
+                if (!success || !url) return // Skip failed uploads?
+                
+                return fetch(url, {
+                    method: 'PUT',
+                    body: file
+                })
             })
             promises.push(promise)
         })
@@ -313,20 +269,36 @@ export default function HostingManager({ order }: HostingManagerProps) {
     const fileList = e.target.files
     if (!fileList || fileList.length === 0) return
 
-    const formData = new FormData()
-    formData.append('file', fileList[0])
-    formData.append('instanceId', order.id)
-    formData.append('currentPath', currentPath)
-
-    const toastId = toast.loading('Uploading...')
+    const file = fileList[0]
+    const toastId = toast.loading(`Uploading ${file.name}...`)
     
-    const result = await uploadFile(formData)
-    
-    if (result.success) {
-        toast.success('File uploaded', { id: toastId })
+    try {
+        const contentType = file.type || 'application/octet-stream'
+        // 1. Get Presigned URL
+        const { success, url, error } = await getUploadUrlAction(order.id, currentPath, file.name, contentType)
+        
+        if (!success || !url) {
+            throw new Error(error || 'Failed to get upload URL')
+        }
+        
+        // 2. Upload directly to R2
+        const uploadResponse = await fetch(url, {
+            method: 'PUT',
+            body: file,
+            headers: {
+                'Content-Type': contentType
+            }
+        })
+        
+        if (!uploadResponse.ok) {
+            throw new Error('Upload failed')
+        }
+        
+        toast.success('File uploaded successfully', { id: toastId })
         loadFiles()
-    } else {
-        toast.error(result.error as string, { id: toastId })
+    } catch (error) {
+        console.error(error)
+        toast.error('Failed to upload file', { id: toastId })
     }
     
     // Reset input
@@ -391,7 +363,7 @@ export default function HostingManager({ order }: HostingManagerProps) {
                 <FolderPlus className="h-4 w-4 mr-2" />
                 New Folder
             </Button>
-            <Button variant="outline" size="sm" onClick={handlePaste} disabled={!clipboard}>
+            <Button variant="outline" size="sm" onClick={() => handlePaste()} disabled={!clipboard}>
                 <ClipboardPaste className="h-4 w-4 mr-2" />
                 Paste
             </Button>
@@ -411,7 +383,6 @@ export default function HostingManager({ order }: HostingManagerProps) {
 
       {/* Main Content */}
       <div className="flex-1 border rounded-lg bg-card overflow-hidden flex flex-col">
-         {/* Actions Bar for Selected Item */}
          {selectedFile && (
              <div className="flex items-center gap-2 p-2 border-b bg-muted/20">
                  <span className="text-sm font-medium mr-2">{selectedFile.name}</span>
@@ -421,28 +392,25 @@ export default function HostingManager({ order }: HostingManagerProps) {
                          Edit
                      </Button>
                  )}
-                 <Button variant="ghost" size="sm" onClick={() => {
-                     setRenameValue(selectedFile.name)
-                     setIsRenameOpen(true)
-                 }}>
+                 <Button variant="ghost" size="sm" onClick={() => openRenameDialog(selectedFile)}>
                      <FileText className="h-4 w-4 mr-2" />
                      Rename
                  </Button>
-                 <Button variant="ghost" size="sm" onClick={handleCut}>
+                 <Button variant="ghost" size="sm" onClick={() => handleCut(selectedFile)}>
                      <Scissors className="h-4 w-4 mr-2" />
                      Cut
                  </Button>
-                 <Button variant="ghost" size="sm" onClick={handleZip}>
+                 <Button variant="ghost" size="sm" onClick={() => handleZip(selectedFile)}>
                      <FileArchive className="h-4 w-4 mr-2" />
                      Zip
                  </Button>
                  {selectedFile.name.endsWith('.zip') && (
-                    <Button variant="ghost" size="sm" onClick={handleUnzip}>
+                    <Button variant="ghost" size="sm" onClick={() => handleUnzip(selectedFile)}>
                         <FileArchive className="h-4 w-4 mr-2" />
                         Unzip
                     </Button>
                  )}
-                 <Button variant="ghost" size="sm" className="text-red-500 hover:text-red-600 hover:bg-red-50" onClick={handleDelete}>
+                 <Button variant="ghost" size="sm" className="text-red-500 hover:text-red-600 hover:bg-red-50" onClick={() => handleDelete(selectedFile)}>
                      <Trash2 className="h-4 w-4 mr-2" />
                      Delete
                  </Button>
@@ -454,6 +422,13 @@ export default function HostingManager({ order }: HostingManagerProps) {
             isLoading={isLoading} 
             selectedFile={selectedFile}
             onFileClick={handleFileClick}
+            onRename={openRenameDialog}
+            onDelete={handleDelete}
+            onZip={handleZip}
+            onUnzip={handleUnzip}
+            onCut={handleCut}
+            onDownload={handleDownload}
+            onEdit={handleEditFile}
          />
       </div>
 

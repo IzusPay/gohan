@@ -23,5 +23,20 @@
     "nextBilling": "2026-02-24",
     "status": "Active",
     "createdAt": "2026-01-25T01:32:23.248Z"
+  },
+  {
+    "id": "owjs70020",
+    "type": "hosting",
+    "planName": "Web Hosting Demo",
+    "cpu": "Shared",
+    "ram": "Shared",
+    "storage": "6GB",
+    "price": "$3.00",
+    "ip": "Shared IP",
+    "subdomain": "dad",
+    "userEmail": "pedronovaisengcp@gmail.com",
+    "nextBilling": "2026-01-25",
+    "status": "Active",
+    "createdAt": "2026-01-25T21:45:20.295Z"
   }
 ]
