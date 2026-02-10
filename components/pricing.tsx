@@ -11,7 +11,7 @@ import { CustomPlanModal, type CustomPlan } from "@/components/custom-plan-modal
 const plans = [
   {
     name: "Starter VPS",
-    price: 30,
+    price: 15,
     description: "Perfect for small projects and development",
     cpu: "2 vCPU Cores",
     ram: "4 GB RAM",
@@ -22,7 +22,7 @@ const plans = [
   },
   {
     name: "Business VPS",
-    price: 50,
+    price: 30,
     description: "Ideal for growing businesses and apps",
     cpu: "4 vCPU Cores",
     ram: "8 GB RAM",
