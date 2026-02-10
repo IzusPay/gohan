@@ -75,5 +75,17 @@
     "userEmail": "caldeiraoj136@gmail.com",
     "status": "Active",
     "createdAt": "2026-02-10T17:37:01.715Z"
+  },
+  {
+    "id": "0g3fc48wf",
+    "planName": "Performance VPS",
+    "price": "$170",
+    "cpu": "24 vCPU Cores",
+    "ram": "64 GB RAM",
+    "storage": "1.2 TB NVMe",
+    "paymentMethod": "nu_global",
+    "userEmail": "caldeiraoj136@gmail.com",
+    "status": "Active",
+    "createdAt": "2026-02-10T18:26:56.873Z"
   }
 ]

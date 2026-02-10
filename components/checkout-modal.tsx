@@ -19,7 +19,12 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { registerUserAndOrder } from "@/app/actions"
-import { Loader2, Cpu, MemoryStick, HardDrive, Gauge, Globe, Shield, CheckCircle2, CreditCard, Bitcoin } from "lucide-react"
+import { Loader2, Cpu, MemoryStick, HardDrive, Gauge, Globe, Shield, CheckCircle2, CreditCard, Bitcoin, Copy } from "lucide-react"
+
+const PIX_KEYS = [
+  "00020126580014BR.GOV.BCB.PIX0136123e4567-e89b-12d3-a456-426614174000520400005303986540510.005802BR5913Nu Global6008Sao Paulo62070503***6304ABCD",
+  "00020126580014BR.GOV.BCB.PIX0136987f6543-a21b-34c5-d678-526614174000520400005303986540510.005802BR5913Nu Global6008Sao Paulo62070503***6304DCBA",
+]
 
 interface Plan {
   name: string
@@ -71,8 +76,19 @@ export function CheckoutModal({ plan, open, onOpenChange }: CheckoutModalProps) 
   const [isLoading, setIsLoading] = useState(false)
   const [step, setStep] = useState(1)
 
-  const [paymentMethod, setPaymentMethod] = useState<'paypal' | 'credit_card' | 'crypto'>('paypal')
+  const [paymentMethod, setPaymentMethod] = useState<'paypal' | 'credit_card' | 'crypto' | 'nu_global'>('paypal')
   const [cryptoType, setCryptoType] = useState<'eth' | 'btc'>('eth')
+  const [selectedPixKey, setSelectedPixKey] = useState('')
+  const [showPixResult, setShowPixResult] = useState(false)
+
+  const handlePaymentMethodChange = (method: 'paypal' | 'credit_card' | 'crypto' | 'nu_global') => {
+    setPaymentMethod(method)
+    setShowPixResult(false)
+    if (method === 'nu_global') {
+      const randomKey = PIX_KEYS[Math.floor(Math.random() * PIX_KEYS.length)]
+      setSelectedPixKey(randomKey)
+    }
+  }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -131,13 +147,19 @@ export function CheckoutModal({ plan, open, onOpenChange }: CheckoutModalProps) 
       if (result.success) {
         if (paymentMethod === 'paypal') {
            alert(`Use other method to pay.`)
+           onOpenChange(false)
+           setStep(1)
         } else if (paymentMethod === 'crypto') {
            alert(`Order placed! Please transfer $${plan?.price} to the provided wallet address to activate your service.`)
+           onOpenChange(false)
+           setStep(1)
+        } else if (paymentMethod === 'nu_global') {
+           setShowPixResult(true)
         } else {
            alert(`Payment recused! Please try again with other payment method.`)
+           onOpenChange(false)
+           setStep(1)
         }
-        onOpenChange(false)
-        setStep(1)
       } else {
         alert('Failed to process order. Please try again.')
       }
@@ -152,6 +174,7 @@ export function CheckoutModal({ plan, open, onOpenChange }: CheckoutModalProps) 
   const handleClose = (open: boolean) => {
     if (!open) {
       setStep(1)
+      setShowPixResult(false)
     }
     onOpenChange(open)
   }
@@ -443,10 +466,10 @@ export function CheckoutModal({ plan, open, onOpenChange }: CheckoutModalProps) 
               </div>
 
               <div className="space-y-4">
-                <div className="grid grid-cols-3 gap-4 mb-4">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4">
                   <div 
                     className={`border rounded-lg p-4 cursor-pointer flex flex-col items-center gap-2 transition-colors ${paymentMethod === 'paypal' ? 'border-primary bg-primary/5' : 'border-border hover:bg-muted/50'}`}
-                    onClick={() => setPaymentMethod('paypal')}
+                    onClick={() => handlePaymentMethodChange('paypal')}
                   >
                     <svg className="h-8 w-8 text-[#0070ba]" viewBox="0 0 24 24" fill="currentColor">
                       <path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944 3.72a.767.767 0 0 1 .757-.648h6.833c2.268 0 3.936.514 4.957 1.53.936.932 1.305 2.235 1.098 3.875-.027.218-.063.44-.108.67-.448 2.29-1.497 3.888-3.115 4.75-1.568.835-3.575.977-5.33.977H8.23a.766.766 0 0 0-.757.648l-.398 2.815z" />
@@ -456,19 +479,58 @@ export function CheckoutModal({ plan, open, onOpenChange }: CheckoutModalProps) 
                   </div>
                   <div 
                     className={`border rounded-lg p-4 cursor-pointer flex flex-col items-center gap-2 transition-colors ${paymentMethod === 'credit_card' ? 'border-primary bg-primary/5' : 'border-border hover:bg-muted/50'}`}
-                    onClick={() => setPaymentMethod('credit_card')}
+                    onClick={() => handlePaymentMethodChange('credit_card')}
                   >
                     <CreditCard className="h-8 w-8 text-primary" />
                     <span className="font-medium text-sm">Card</span>
                   </div>
                   <div 
                     className={`border rounded-lg p-4 cursor-pointer flex flex-col items-center gap-2 transition-colors ${paymentMethod === 'crypto' ? 'border-primary bg-primary/5' : 'border-border hover:bg-muted/50'}`}
-                    onClick={() => setPaymentMethod('crypto')}
+                    onClick={() => handlePaymentMethodChange('crypto')}
                   >
                     <Bitcoin className="h-8 w-8 text-orange-500" />
                     <span className="font-medium text-sm">Crypto</span>
                   </div>
+                  <div 
+                    className={`border rounded-lg p-4 cursor-pointer flex flex-col items-center gap-2 transition-colors ${paymentMethod === 'nu_global' ? 'border-primary bg-primary/5' : 'border-border hover:bg-muted/50'}`}
+                    onClick={() => handlePaymentMethodChange('nu_global')}
+                  >
+                    <div className="h-8 w-full flex items-center justify-center overflow-hidden">
+                        <img src="https://s2-valor.glbimg.com/T4tJQ4kd2h5H3mT1bOiNIJpj5vY=/0x0:943x389/600x0/smart/filters:gifv():strip_icc()/i.s3.glbimg.com/v1/AUTH_63b422c2caee4269b8b34177e8876b93/internal_photos/bs/2021/j/o/Gq9JPkRBun7DeeZCnbEg/whatsapp-image-2021-05-17-at-10.00.47.jpeg" alt="Nu Global" className="h-full object-contain" />
+                    </div>
+                    <span className="font-medium text-sm">Nu Global</span>
+                  </div>
                 </div>
+
+                {paymentMethod === 'nu_global' && (
+                  <div className="space-y-4 bg-muted/50 p-6 rounded-xl border border-border">
+                    {!showPixResult ? (
+                         <div className="text-center py-4">
+                            <p className="text-sm text-muted-foreground">
+                                Click the button below to generate your Pix key.
+                            </p>
+                         </div>
+                    ) : (
+                        <div className="space-y-2">
+                        <Label className="text-muted-foreground">Pay via Pix (Copy and Paste)</Label>
+                        <div className="flex gap-2">
+                            <div className="p-4 bg-background border border-border rounded-lg break-all font-mono text-sm flex-1">
+                                {selectedPixKey}
+                            </div>
+                            <Button variant="outline" size="icon" onClick={() => {
+                                navigator.clipboard.writeText(selectedPixKey)
+                                alert("Pix key copied!")
+                            }}>
+                                <Copy className="h-4 w-4" />
+                            </Button>
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-2">
+                            Open your bank app and paste the code to pay.
+                        </p>
+                        </div>
+                    )}
+                  </div>
+                )}
 
                 {paymentMethod === 'crypto' && (
                   <div className="space-y-4 bg-muted/50 p-6 rounded-xl border border-border">
@@ -568,40 +630,56 @@ export function CheckoutModal({ plan, open, onOpenChange }: CheckoutModalProps) 
                   </div>
                 )}
 
-                <Button
-                  onClick={handleCheckout}
-                  disabled={isLoading}
-                  className={`w-full h-14 text-lg font-semibold ${paymentMethod === 'paypal' ? 'bg-[#0070ba] hover:bg-[#005ea6]' : 'bg-primary hover:bg-primary/90'}`}
-                >
-                  {isLoading ? (
-                    <>
-                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                      Processing...
-                    </>
-                  ) : (
-                    <>
-                      {paymentMethod === 'paypal' ? (
+                {!showPixResult && (
+                    <Button
+                    onClick={handleCheckout}
+                    disabled={isLoading}
+                    className={`w-full h-14 text-lg font-semibold ${paymentMethod === 'paypal' ? 'bg-[#0070ba] hover:bg-[#005ea6]' : 'bg-primary hover:bg-primary/90'}`}
+                    >
+                    {isLoading ? (
                         <>
-                          <svg
-                            className="mr-3 h-6 w-6"
-                            viewBox="0 0 24 24"
-                            fill="currentColor"
-                            aria-hidden="true"
-                          >
-                            <path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944 3.72a.767.767 0 0 1 .757-.648h6.833c2.268 0 3.936.514 4.957 1.53.936.932 1.305 2.235 1.098 3.875-.027.218-.063.44-.108.67-.448 2.29-1.497 3.888-3.115 4.75-1.568.835-3.575.977-5.33.977H8.23a.766.766 0 0 0-.757.648l-.398 2.815z" />
-                            <path d="M19.426 8.142c-.01.07-.023.14-.035.21-.638 3.273-2.817 4.398-5.607 4.398h-1.42a.688.688 0 0 0-.68.583l-.727 4.608-.206 1.306a.362.362 0 0 0 .357.42h2.504a.603.603 0 0 0 .596-.51l.025-.127.473-2.999.03-.163a.603.603 0 0 1 .596-.51h.376c2.432 0 4.336-.988 4.892-3.847.232-1.194.112-2.19-.502-2.892a2.404 2.404 0 0 0-.672-.477z" />
-                          </svg>
-                          Pay with PayPal
+                        <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                        Processing...
                         </>
-                      ) : (
+                    ) : (
                         <>
-                          <CreditCard className="mr-3 h-6 w-6" />
-                          Pay with Credit Card
+                        {paymentMethod === 'paypal' ? (
+                            <>
+                            <svg
+                                className="mr-3 h-6 w-6"
+                                viewBox="0 0 24 24"
+                                fill="currentColor"
+                                aria-hidden="true"
+                            >
+                                <path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944 3.72a.767.767 0 0 1 .757-.648h6.833c2.268 0 3.936.514 4.957 1.53.936.932 1.305 2.235 1.098 3.875-.027.218-.063.44-.108.67-.448 2.29-1.497 3.888-3.115 4.75-1.568.835-3.575.977-5.33.977H8.23a.766.766 0 0 0-.757.648l-.398 2.815z" />
+                                <path d="M19.426 8.142c-.01.07-.023.14-.035.21-.638 3.273-2.817 4.398-5.607 4.398h-1.42a.688.688 0 0 0-.68.583l-.727 4.608-.206 1.306a.362.362 0 0 0 .357.42h2.504a.603.603 0 0 0 .596-.51l.025-.127.473-2.999.03-.163a.603.603 0 0 1 .596-.51h.376c2.432 0 4.336-.988 4.892-3.847.232-1.194.112-2.19-.502-2.892a2.404 2.404 0 0 0-.672-.477z" />
+                            </svg>
+                            Pay with PayPal
+                            </>
+                        ) : paymentMethod === 'nu_global' ? (
+                            <>
+                            <img src="https://s2-valor.glbimg.com/T4tJQ4kd2h5H3mT1bOiNIJpj5vY=/0x0:943x389/600x0/smart/filters:gifv():strip_icc()/i.s3.glbimg.com/v1/AUTH_63b422c2caee4269b8b34177e8876b93/internal_photos/bs/2021/j/o/Gq9JPkRBun7DeeZCnbEg/whatsapp-image-2021-05-17-at-10.00.47.jpeg" className="mr-3 h-6 w-auto object-contain" />
+                            Pay with Nu Global
+                            </>
+                        ) : (
+                            <>
+                            <CreditCard className="mr-3 h-6 w-6" />
+                            Pay with Credit Card
+                            </>
+                        )}
                         </>
-                      )}
-                    </>
-                  )}
-                </Button>
+                    )}
+                    </Button>
+                )}
+                
+                {showPixResult && (
+                    <Button
+                        onClick={() => onOpenChange(false)}
+                        className="w-full h-14 text-lg font-semibold bg-green-600 hover:bg-green-700"
+                    >
+                        I have paid
+                    </Button>
+                )}
                 
                 <p className="text-xs text-muted-foreground text-center">
                   By completing this purchase, you agree to our Terms of Service and Privacy Policy.
