@@ -24,8 +24,6 @@ type LoginState = {
   error?: string
 }
 
-export const runtime = 'edge'
-
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [state, setState] = useState<LoginState | null>(null)

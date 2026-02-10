@@ -7,8 +7,6 @@ import { Features } from "@/components/features"
 import { CTA } from "@/components/cta"
 import { Footer } from "@/components/footer"
 
-export const runtime = 'edge'
-
 export default function HostPrimePage() {
   return (
     <div className="min-h-screen bg-background">

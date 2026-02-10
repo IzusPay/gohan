@@ -4,8 +4,6 @@ import { redirect } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import DashboardNav from '@/components/dashboard-nav'
 
-export const runtime = 'edge'
-
 export default async function AdminStoragePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const { role, email } = await getUser()

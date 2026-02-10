@@ -10,8 +10,6 @@ import { useState } from 'react'
 import { Loader2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
-export const runtime = 'edge'
-
 export default function CreateOrderForm() {
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()

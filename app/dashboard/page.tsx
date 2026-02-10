@@ -3,8 +3,6 @@ import { redirect } from 'next/navigation'
 import DashboardNav from '@/components/dashboard-nav'
 import InstancesView from '@/components/instances-view'
 
-export const runtime = 'edge'
-
 export default async function DashboardPage() {
   const { role, email } = await getUser()
   
