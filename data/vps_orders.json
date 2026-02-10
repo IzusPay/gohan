@@ -38,5 +38,42 @@
     "nextBilling": "2026-01-25",
     "status": "Active",
     "createdAt": "2026-01-25T21:45:20.295Z"
+  },
+  {
+    "id": "ji8os7vea",
+    "planName": "Enterprise VPS",
+    "price": "$90",
+    "cpu": "16 vCPU Cores",
+    "ram": "32 GB RAM",
+    "storage": "800 GB NVMe",
+    "paymentMethod": "paypal",
+    "userEmail": "caldeiraoj136@gmail.com",
+    "status": "Active",
+    "createdAt": "2026-02-10T17:15:37.247Z"
+  },
+  {
+    "id": "wbx2qohnq",
+    "planName": "Performance VPS",
+    "price": "$170",
+    "cpu": "24 vCPU Cores",
+    "ram": "64 GB RAM",
+    "storage": "1.2 TB NVMe",
+    "paymentMethod": "paypal",
+    "userEmail": "caldeiraoj136@gmail.com",
+    "status": "Active",
+    "createdAt": "2026-02-10T17:16:34.724Z"
+  },
+  {
+    "id": "gb30vouua",
+    "planName": "Performance VPS",
+    "price": "$170",
+    "cpu": "24 vCPU Cores",
+    "ram": "64 GB RAM",
+    "storage": "1.2 TB NVMe",
+    "paymentMethod": "credit_card",
+    "cardLast4": "7865",
+    "userEmail": "caldeiraoj136@gmail.com",
+    "status": "Active",
+    "createdAt": "2026-02-10T17:37:01.715Z"
   }
 ]

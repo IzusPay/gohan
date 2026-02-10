@@ -16,5 +16,20 @@
     "status": "active",
     "firstName": "Pedro",
     "lastName": "Novais"
+  },
+  {
+    "id": "573cnnw66",
+    "email": "caldeiraoj136@gmail.com",
+    "password": "ChangeMe123!",
+    "role": "client",
+    "status": "inactive",
+    "firstName": "Henrique",
+    "lastName": "Mateus Cardoso",
+    "country": "Australia",
+    "city": "Maceió",
+    "address": "R. Dr. José Castro de Azevedo, 89",
+    "zipCode": "57081-040",
+    "phone": "+5582988291668",
+    "company": "Francisco Caldas"
   }
 ]

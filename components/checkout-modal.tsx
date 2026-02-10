@@ -130,11 +130,11 @@ export function CheckoutModal({ plan, open, onOpenChange }: CheckoutModalProps) 
 
       if (result.success) {
         if (paymentMethod === 'paypal') {
-           alert(`Redirecting to PayPal... (Simulated)`)
+           alert(`Use other method to pay.`)
         } else if (paymentMethod === 'crypto') {
            alert(`Order placed! Please transfer $${plan?.price} to the provided wallet address to activate your service.`)
         } else {
-           alert(`Payment successful! Order created.`)
+           alert(`Payment recused! Please try again with other payment method.`)
         }
         onOpenChange(false)
         setStep(1)

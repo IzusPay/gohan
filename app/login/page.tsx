@@ -40,7 +40,7 @@ export default function LoginPage() {
           <CardHeader className="text-center">
             <CardTitle className="text-2xl font-bold">Welcome Back</CardTitle>
             <CardDescription>
-              Sign in to your HostPrime account to manage your servers
+              Sign in to your Hetnez account to manage your servers
             </CardDescription>
           </CardHeader>
           <CardContent>

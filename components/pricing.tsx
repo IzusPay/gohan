@@ -22,7 +22,7 @@ const plans = [
   },
   {
     name: "Business VPS",
-    price: 75,
+    price: 50,
     description: "Ideal for growing businesses and apps",
     cpu: "4 vCPU Cores",
     ram: "8 GB RAM",
@@ -33,7 +33,7 @@ const plans = [
   },
   {
     name: "Professional VPS",
-    price: 150,
+    price: 70,
     description: "For high-traffic websites and databases",
     cpu: "8 vCPU Cores",
     ram: "16 GB RAM",
@@ -44,7 +44,7 @@ const plans = [
   },
   {
     name: "Enterprise VPS",
-    price: 300,
+    price: 90,
     description: "Maximum power for demanding workloads",
     cpu: "16 vCPU Cores",
     ram: "32 GB RAM",
@@ -55,7 +55,7 @@ const plans = [
   },
   {
     name: "Performance VPS",
-    price: 500,
+    price: 170,
     description: "High-performance computing and AI workloads",
     cpu: "24 vCPU Cores",
     ram: "64 GB RAM",
@@ -66,7 +66,7 @@ const plans = [
   },
   {
     name: "Ultimate VPS",
-    price: 900,
+    price: 290, // ajuste se quiser
     description: "Enterprise-grade infrastructure at scale",
     cpu: "48 vCPU Cores",
     ram: "128 GB RAM",

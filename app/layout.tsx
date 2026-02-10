@@ -1,14 +1,13 @@
 import React from "react"
 import type { Metadata } from 'next'
-import { Geist, Geist_Mono } from 'next/font/google'
+import { Plus_Jakarta_Sans } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
 
-const _geist = Geist({ subsets: ["latin"] });
-const _geistMono = Geist_Mono({ subsets: ["latin"] });
+const _plusJakartaSans = Plus_Jakarta_Sans({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: 'HostPrime - Premium VPS Hosting',
+  title: 'Hetnez - Premium VPS Hosting',
   description: 'Enterprise-grade VPS hosting with maximum performance, reliability, and 24/7 support. Starting from $30/month.',
   generator: 'v0.app',
   icons: {
