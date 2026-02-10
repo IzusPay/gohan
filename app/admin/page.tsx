@@ -32,6 +32,8 @@ import CreateUserDialog from '@/components/admin/create-user-dialog'
 
 import LeadsTable from '@/components/admin/leads-table'
 
+export const runtime = 'edge'
+
 export default async function AdminPage() {
   const { role, email } = await getUser()
   

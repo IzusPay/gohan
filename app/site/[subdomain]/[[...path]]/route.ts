@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getInstanceBySubdomain } from '@/app/actions'
 import { getDownloadUrl } from '@/lib/storage'
 
+export const runtime = 'edge'
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ subdomain: string; path?: string[] }> }

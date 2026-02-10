@@ -6,6 +6,8 @@ import './globals.css'
 
 const _plusJakartaSans = Plus_Jakarta_Sans({ subsets: ["latin"] });
 
+export const runtime = 'edge'
+
 export const metadata: Metadata = {
   title: 'Hetnez - Premium VPS Hosting',
   description: 'Enterprise-grade VPS hosting with maximum performance, reliability, and 24/7 support. Starting from $30/month.',

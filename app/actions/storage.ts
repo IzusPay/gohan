@@ -9,6 +9,8 @@ import path from 'path'
 
 const R2_BUCKET_NAME = process.env.R2_BUCKET_NAME
 
+export const runtime = 'edge'
+
 async function getInstanceRoot(instanceId: string) {
   try {
     const DB_PATH = path.join(process.cwd(), 'data', 'vps_orders.json')
