@@ -1,0 +1,12 @@
+name = "gohan"
+compatibility_date = "2025-02-01"
+
+# Necessário para Next.js (fetch, streams, etc)
+compatibility_flags = ["nodejs_compat"]
+
+# Pages
+pages_build_output_dir = ".vercel/output/static"
+
+# Variáveis de ambiente (opcional)
+[vars]
+NEXT_PUBLIC_APP_NAME = "IzusPay"

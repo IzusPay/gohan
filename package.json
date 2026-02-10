@@ -67,6 +67,7 @@
     "zod": "3.25.76"
   },
   "devDependencies": {
+    "@cloudflare/next-on-pages": "^1.13.16",
     "@tailwindcss/postcss": "^4.1.9",
     "@types/node": "^22",
     "@types/prismjs": "^1.26.5",
