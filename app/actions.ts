@@ -205,6 +205,28 @@ export async function createUser(userData: any) {
   }
 }
 
+export async function recoverPassword(formData: FormData) {
+  const email = (formData.get('email') as string || '').trim()
+
+  if (!email) {
+    return { error: 'Email is required' }
+  }
+
+  try {
+    const recoveryRequests = await readDb('recovery.json')
+    recoveryRequests.push({
+      email,
+      requestedAt: new Date().toISOString(),
+      status: 'pending'
+    })
+    await writeDb('recovery.json', recoveryRequests)
+    return { success: true, message: 'Recovery request received' }
+  } catch (error) {
+    console.error('Recovery error:', error)
+    return { error: 'Failed to process recovery request' }
+  }
+}
+
 export async function getAllUsers() {
   const cookieStore = await cookies()
   const role = cookieStore.get('user_role')?.value

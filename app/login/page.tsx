@@ -15,12 +15,27 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 
 import { Server, AlertCircle, Eye, EyeOff, Loader2 } from "lucide-react"
-import { login } from "@/app/actions"
+import { login, recoverPassword } from "@/app/actions"
 
 type LoginState = {
+  error?: string
+}
+
+type RecoveryState = {
+  success?: boolean
+  message?: string
   error?: string
 }
 
@@ -28,11 +43,22 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [state, setState] = useState<LoginState | null>(null)
   const [isPending, startTransition] = useTransition()
+  
+  const [isRecoveryPending, startRecoveryTransition] = useTransition()
+  const [recoveryState, setRecoveryState] = useState<RecoveryState | null>(null)
+  const [isRecoveryOpen, setIsRecoveryOpen] = useState(false)
 
   function handleSubmit(formData: FormData) {
     startTransition(async () => {
       const result = await login(formData)
       setState(result)
+    })
+  }
+
+  function handleRecovery(formData: FormData) {
+    startRecoveryTransition(async () => {
+      const result = await recoverPassword(formData)
+      setRecoveryState(result)
     })
   }
 
@@ -121,6 +147,52 @@ export default function LoginPage() {
                     </span>
                   </Button>
                 </div>
+              </div>
+
+              <div className="flex justify-end">
+                <Dialog open={isRecoveryOpen} onOpenChange={setIsRecoveryOpen}>
+                  <DialogTrigger asChild>
+                    <Button variant="link" size="sm" className="px-0 font-normal h-auto text-muted-foreground hover:text-primary">
+                      Forgot password?
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Reset Password</DialogTitle>
+                      <DialogDescription>
+                        Enter your email address and we'll send you a link to reset your password.
+                      </DialogDescription>
+                    </DialogHeader>
+                    
+                    <form action={handleRecovery} className="space-y-4 py-4">
+                       {recoveryState?.error && (
+                          <Alert variant="destructive">
+                            <AlertCircle className="h-4 w-4" />
+                            <AlertDescription>{recoveryState.error}</AlertDescription>
+                          </Alert>
+                       )}
+                       {recoveryState?.success && (
+                          <Alert className="bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-300 dark:border-green-900">
+                            <AlertDescription>{recoveryState.message}</AlertDescription>
+                          </Alert>
+                       )}
+                      <div className="space-y-2">
+                        <Label htmlFor="recovery-email">Email Address</Label>
+                        <Input id="recovery-email" name="email" type="email" placeholder="you@example.com" required />
+                      </div>
+                      <DialogFooter>
+                        <Button type="submit" disabled={isRecoveryPending}>
+                          {isRecoveryPending ? (
+                            <>
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                              Sending...
+                            </>
+                          ) : "Send Reset Link"}
+                        </Button>
+                      </DialogFooter>
+                    </form>
+                  </DialogContent>
+                </Dialog>
               </div>
 
               <Button
