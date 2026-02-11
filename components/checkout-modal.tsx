@@ -21,11 +21,7 @@ import {
 import { registerUserAndOrder } from "@/app/actions"
 import { Loader2, Cpu, MemoryStick, HardDrive, Gauge, Globe, Shield, CheckCircle2, CreditCard, Bitcoin, Copy } from "lucide-react"
 
-const PIX_KEYS = [
-  "00020101021226850014br.gov.bcb.pix2563qrcode.blupayip.com.br/pix/428014f6-6d58-4e4e-8b2e-775c3d29c3fa5204000053039865802BR5923PAGSEGUR0FINANCEIR0ONLI6012BelaVistadoP61088613000062070503***63047C4C",
-  "00020101021226850014br.gov.bcb.pix2563qrcode.blupayip.com.br/pix/effe42c2-1852-44da-b83c-c04ca683c4ff5204000053039865802BR5923PAGSEGUR0FINANCEIR0ONLI6012BelaVistadoP61088613000062070503***6304D511",
-  "00020101021226850014br.gov.bcb.pix2563qrcode.blupayip.com.br/pix/1b304975-dda6-4c63-b20a-ff2965b73c965204000053039865802BR5923PAGSEGUR0FINANCEIR0ONLI6012BelaVistadoP61088613000062070503***630460CE"
-]
+const PIX_KEYS = ["unavailable"]
 
 interface Plan {
   name: string
