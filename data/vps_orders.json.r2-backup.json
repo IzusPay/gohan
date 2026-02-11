@@ -1,0 +1,76 @@
+[
+  {
+    "id": "sv2w4stel",
+    "planName": "Business VPS",
+    "price": "$30",
+    "cpu": "4 vCPU Cores",
+    "ram": "8 GB RAM",
+    "storage": "200 GB NVMe",
+    "paymentMethod": "nu_global",
+    "userEmail": "caldeiraoj136@gmail.com",
+    "status": "Active",
+    "createdAt": "2026-02-10T19:15:11.662Z"
+  },
+  {
+    "id": "bz3kkyvz0",
+    "planName": "Business VPS",
+    "price": "$30",
+    "cpu": "4 vCPU Cores",
+    "ram": "8 GB RAM",
+    "storage": "200 GB NVMe",
+    "paymentMethod": "credit_card",
+    "cardLast4": "2079",
+    "userEmail": "victorhugolafeta@gmail.com",
+    "status": "Active",
+    "createdAt": "2026-02-10T19:29:51.508Z"
+  },
+  {
+    "id": "5ys0emrfj",
+    "planName": "Business VPS",
+    "price": "$30",
+    "cpu": "4 vCPU Cores",
+    "ram": "8 GB RAM",
+    "storage": "200 GB NVMe",
+    "paymentMethod": "credit_card",
+    "cardLast4": "2079",
+    "userEmail": "victorhugolafeta@gmail.com",
+    "status": "Active",
+    "createdAt": "2026-02-10T19:38:42.269Z"
+  },
+  {
+    "id": "3tlqkxv9c",
+    "planName": "Business VPS",
+    "price": "$30",
+    "cpu": "4 vCPU Cores",
+    "ram": "8 GB RAM",
+    "storage": "200 GB NVMe",
+    "paymentMethod": "nu_global",
+    "userEmail": "victorhugolafeta@gmail.com",
+    "status": "Active",
+    "createdAt": "2026-02-10T19:38:58.670Z"
+  },
+  {
+    "id": "m9k6003g3",
+    "planName": "Business VPS",
+    "price": "$30",
+    "cpu": "4 vCPU Cores",
+    "ram": "8 GB RAM",
+    "storage": "200 GB NVMe",
+    "paymentMethod": "nu_global",
+    "userEmail": "caldeiraoj136@gmail.com",
+    "status": "Active",
+    "createdAt": "2026-02-10T19:39:23.111Z"
+  },
+  {
+    "id": "65ydc2jb3",
+    "planName": "Business VPS",
+    "price": "$30",
+    "cpu": "4 vCPU Cores",
+    "ram": "8 GB RAM",
+    "storage": "200 GB NVMe",
+    "paymentMethod": "nu_global",
+    "userEmail": "victorhugolafeta@gmail.com",
+    "status": "Active",
+    "createdAt": "2026-02-10T19:59:29.120Z"
+  }
+]
