@@ -214,16 +214,77 @@ export async function recoverPassword(formData: FormData) {
 
   try {
     const recoveryRequests = await readDb('recovery.json')
+    
+    // Generate simple token
+    const token = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
+    
     recoveryRequests.push({
       email,
+      token,
       requestedAt: new Date().toISOString(),
+      expiresAt: new Date(Date.now() + 3600000).toISOString(), // 1 hour
       status: 'pending'
     })
+    
     await writeDb('recovery.json', recoveryRequests)
-    return { success: true, message: 'Recovery request received' }
+    
+    console.log('--- PASSWORD RESET LINK ---')
+    console.log(`To reset password for ${email}, verify this link:`)
+    console.log(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/reset-password?token=${token}`)
+    console.log('---------------------------')
+
+    return { success: true, message: 'Recovery request received. Check your email (or console).' }
   } catch (error) {
     console.error('Recovery error:', error)
     return { error: 'Failed to process recovery request' }
+  }
+}
+
+export async function resetPassword(formData: FormData) {
+  const token = (formData.get('token') as string || '').trim()
+  const password = (formData.get('password') as string || '').trim()
+  const confirmPassword = (formData.get('confirmPassword') as string || '').trim()
+
+  if (!token || !password || !confirmPassword) {
+    return { error: 'All fields are required' }
+  }
+
+  if (password !== confirmPassword) {
+    return { error: 'Passwords do not match' }
+  }
+
+  try {
+    const recoveryRequests = await readDb('recovery.json')
+    const requestIndex = recoveryRequests.findIndex((r: any) => 
+      r.token === token && 
+      r.status === 'pending' &&
+      new Date(r.expiresAt) > new Date()
+    )
+
+    if (requestIndex === -1) {
+      return { error: 'Invalid or expired token' }
+    }
+
+    const email = recoveryRequests[requestIndex].email
+    const users = await getUsersData()
+    const userIndex = users.findIndex((u: any) => u.email === email)
+
+    if (userIndex === -1) {
+      return { error: 'User not found' }
+    }
+
+    // Update user password
+    users[userIndex].password = password
+    await saveUsersData(users)
+
+    // Mark token as used
+    recoveryRequests[requestIndex].status = 'used'
+    await writeDb('recovery.json', recoveryRequests)
+
+    return { success: true }
+  } catch (error) {
+    console.error('Reset password error:', error)
+    return { error: 'Failed to reset password' }
   }
 }
 

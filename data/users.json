@@ -31,5 +31,20 @@
     "zipCode": "57081-040",
     "phone": "+5582988291668",
     "company": "Francisco Caldas"
+  },
+  {
+    "id": "yj6iu9z8n",
+    "email": "victorhugolafeta@gmail.com",
+    "password": "22mNf4vgRy6",
+    "role": "client",
+    "status": "active",
+    "firstName": "victor",
+    "lastName": "lafeta",
+    "country": "Brazil",
+    "city": "Montes Claros",
+    "address": "Av reinaldo Rocha Brito, 53",
+    "zipCode": "39408-207",
+    "phone": "+5538998381595",
+    "company": ""
   }
 ]
