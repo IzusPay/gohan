@@ -4,16 +4,14 @@ import { listFiles, getDownloadUrl, deleteFile, copyFile, getFileContent, R2 } f
 import { PutObjectCommand } from "@aws-sdk/client-s3"
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner"
 import { revalidatePath } from "next/cache"
-import fs from 'fs/promises'
-import path from 'path'
 
 const R2_BUCKET_NAME = process.env.R2_BUCKET_NAME
 
 async function getInstanceRoot(instanceId: string) {
   try {
-    const DB_PATH = path.join(process.cwd(), 'data', 'vps_orders.json')
-    const data = await fs.readFile(DB_PATH, 'utf-8')
-    const orders = JSON.parse(data)
+    const content = await getFileContent('data/vps_orders.json')
+    if (!content) return null
+    const orders = JSON.parse(content)
     const order = orders.find((o: any) => o.id === instanceId)
     
     if (!order || order.type !== 'hosting') return null

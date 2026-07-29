@@ -2,60 +2,32 @@
 
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
-import fs from 'fs/promises'
-import path from 'path'
 import { getFileContent, saveFileContent } from '@/lib/storage'
 
-// ;;
-const DB_PATH = path.join(process.cwd(), 'data', 'vps_orders.json')
-const USERS_DB_PATH = path.join(process.cwd(), 'data', 'users.json')
-
 async function readDb(name: string) {
-  // Check if R2 is configured and we are in production
-  const isR2 = process.env.NODE_ENV === 'production' && !!process.env.R2_BUCKET_NAME
-  
-  if (isR2) {
-    console.log(`Reading ${name} from R2`)
-    const content = await getFileContent(`data/${name}`)
-    if (!content) return []
-    try {
-        return JSON.parse(content)
-    } catch {
-        return []
-    }
+  if (!process.env.R2_BUCKET_NAME) {
+    console.log(`R2 not configured, returning empty array for ${name}`)
+    return []
   }
-  
-  // Local fs fallback
-  console.log(`Reading ${name} from local fs`)
-  const dbPath = path.join(process.cwd(), 'data', name)
+
+  console.log(`Reading ${name} from R2`)
+  const content = await getFileContent(`data/${name}`)
+  if (!content) return []
   try {
-      const content = await fs.readFile(dbPath, 'utf-8')
-      return JSON.parse(content)
-  } catch (error) {
-      console.log(`File ${name} not found locally, returning empty array`)
-      return []
+    return JSON.parse(content)
+  } catch {
+    return []
   }
 }
 
 async function writeDb(name: string, data: any) {
-  const isR2 = process.env.NODE_ENV === 'production' && !!process.env.R2_BUCKET_NAME
-  
-  if (isR2) {
-    console.log(`Writing ${name} to R2`)
-    await saveFileContent(`data/${name}`, JSON.stringify(data, null, 2))
+  if (!process.env.R2_BUCKET_NAME) {
+    console.log(`R2 not configured, skipping write for ${name}`)
     return
   }
-  
-  // Local fs fallback
-  console.log(`Writing ${name} to local fs`)
-  const dbPath = path.join(process.cwd(), 'data', name)
-  const dataDir = path.dirname(dbPath)
-  try {
-      await fs.access(dataDir)
-  } catch {
-      await fs.mkdir(dataDir, { recursive: true })
-  }
-  await fs.writeFile(dbPath, JSON.stringify(data, null, 2))
+
+  console.log(`Writing ${name} to R2`)
+  await saveFileContent(`data/${name}`, JSON.stringify(data, null, 2))
 }
 
 async function getUsersData() {
