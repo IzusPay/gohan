@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { HardDrive, FolderOpen } from "lucide-react"
 
+export const runtime = 'edge'
+
 export default async function StoragePage() {
   const { email } = await getUser()
   

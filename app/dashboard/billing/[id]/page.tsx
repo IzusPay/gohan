@@ -3,6 +3,8 @@ import { redirect, notFound } from 'next/navigation'
 import DashboardNav from '@/components/dashboard-nav'
 import InvoiceDetailView from '@/components/invoice-detail-view'
 
+export const runtime = 'edge'
+
 export default async function InvoiceDetailPage({
   params,
 }: {

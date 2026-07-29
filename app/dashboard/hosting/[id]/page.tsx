@@ -3,6 +3,8 @@ import { redirect } from 'next/navigation'
 import DashboardNav from '@/components/dashboard-nav'
 import HostingManager from '@/components/hosting/hosting-manager'
 
+export const runtime = 'edge'
+
 export default async function HostingPage({ params }: { params: Promise<{ id: string }> }) {
   const { role, email } = await getUser()
   const { id } = await params

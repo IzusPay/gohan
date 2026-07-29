@@ -3,6 +3,8 @@ import DashboardNav from '@/components/dashboard-nav'
 import { redirect } from 'next/navigation'
 import BillingView from '@/components/billing-view'
 
+export const runtime = 'edge'
+
 export default async function BillingPage() {
   const { role, email } = await getUser()
   
