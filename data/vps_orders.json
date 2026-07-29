@@ -9,7 +9,8 @@
     "status": "Active",
     "ip": "192.168.1.100",
     "nextBilling": "2024-06-01",
-    "userEmail": "pedronovaisengcp@gmail.com"
+    "userEmail": "pedronovaisengcp@gmail.com",
+    "createdAt": "2024-05-01T12:00:00.000Z"
   },
   {
     "id": "bmj1rnnct",
@@ -87,5 +88,20 @@
     "userEmail": "caldeiraoj136@gmail.com",
     "status": "Active",
     "createdAt": "2026-02-10T18:26:56.873Z"
+  },
+  {
+    "id": "vps16gb001",
+    "planName": "VPS",
+    "cpu": "8 vCPU Cores",
+    "ram": "16 GB RAM",
+    "storage": "400 GB NVMe",
+    "price": "$90",
+    "ip": "192.168.1.116",
+    "userEmail": "pedronovaisengcp@gmail.com",
+    "nextBilling": "2026-08-28",
+    "status": "Active",
+    "paymentMethod": "credit_card",
+    "cardLast4": "2985",
+    "createdAt": "2026-07-28T21:23:00.000-03:00"
   }
 ]

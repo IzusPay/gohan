@@ -1,9 +1,10 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { CreditCard } from 'lucide-react'
+import { CreditCard, ChevronRight } from 'lucide-react'
 import UpdatePaymentMethodModal from '@/components/update-payment-method-modal'
 import { format } from 'date-fns'
 
@@ -14,26 +15,32 @@ interface BillingViewProps {
 export default function BillingView({ orders }: BillingViewProps) {
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false)
   const [cardDetails, setCardDetails] = useState({
-    last4: '4242',
+    last4: '2985',
     expiry: '12/28'
   })
 
-  // Generate invoices from orders
-  const invoices = orders.map((order, index) => {
-    // Parse price to number
-    const amount = order.price
-    const date = new Date(order.createdAt || Date.now())
-    const nextBillingDate = new Date(date)
-    nextBillingDate.setMonth(nextBillingDate.getMonth() + 1)
-    
-    return {
-      id: `INV-${date.getFullYear()}-${String(index + 1).padStart(3, '0')}`,
-      date: format(date, 'MMM d, yyyy'),
-      nextBilling: format(nextBillingDate, 'MMM d, yyyy'),
-      amount: amount,
-      description: `Billing for ${order.planName}`
-    }
-  })
+  // Generate invoices from orders (newest first)
+  const invoices = orders
+    .map((order) => {
+      const date = new Date(order.createdAt || 0)
+      const nextBillingDate = order.nextBilling
+        ? new Date(order.nextBilling)
+        : new Date(date.getTime())
+      if (!order.nextBilling) {
+        nextBillingDate.setMonth(nextBillingDate.getMonth() + 1)
+      }
+
+      return {
+        id: `INV-${order.id}`,
+        orderId: order.id,
+        date: format(date, 'MMM d, yyyy HH:mm'),
+        sortKey: date.getTime(),
+        nextBilling: format(nextBillingDate, 'MMM d, yyyy'),
+        amount: order.price,
+        description: `Billing for ${order.planName}`
+      }
+    })
+    .sort((a, b) => b.sortKey - a.sortKey)
 
   const handleUpdateCard = (newCard: any) => {
     // In a real app, this would verify the card and update backend
@@ -77,16 +84,21 @@ export default function BillingView({ orders }: BillingViewProps) {
               </div>
             ) : (
               invoices.map((invoice) => (
-                <div key={invoice.id} className="flex items-center justify-between p-4 border rounded-lg">
+                <Link
+                  key={invoice.id}
+                  href={`/dashboard/billing/${invoice.orderId}`}
+                  className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
+                >
                   <div>
-                    <p className="font-medium">Invoice #{invoice.id}</p>
+                    <p className="font-medium text-primary">Invoice #{invoice.id}</p>
                     <p className="text-sm text-muted-foreground">{invoice.date} - {invoice.description}</p>
                     <p className="text-xs text-muted-foreground mt-1">Next billing: {invoice.nextBilling}</p>
                   </div>
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-3">
                     <span className="font-medium">{invoice.amount}</span>
+                    <ChevronRight className="h-4 w-4 text-muted-foreground" />
                   </div>
-                </div>
+                </Link>
               ))
             )}
           </div>

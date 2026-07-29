@@ -418,6 +418,23 @@ export async function getUser() {
   return { role, email }
 }
 
+export async function getCurrentUserProfile() {
+  const { email } = await getUser()
+  if (!email) return null
+
+  try {
+    const users = await getUsersData()
+    const user = users.find((u: any) => u.email?.toLowerCase() === email.toLowerCase())
+    if (!user) return { email }
+
+    const { password, ...safeUser } = user
+    return safeUser
+  } catch (error) {
+    console.error('Error reading user profile:', error)
+    return { email }
+  }
+}
+
 export async function getInstanceBySubdomain(subdomain: string) {
   try {
     const orders = await getOrdersData()

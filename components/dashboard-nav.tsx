@@ -42,7 +42,8 @@ export default function DashboardNav({ email }: { email: string }) {
                   key={item.href}
                   href={item.href}
                   className={`text-sm font-medium transition-colors hover:text-primary ${
-                    pathname === item.href
+                    pathname === item.href ||
+                    (item.href !== '/dashboard' && pathname.startsWith(item.href))
                       ? 'text-foreground'
                       : 'text-muted-foreground'
                   }`}
