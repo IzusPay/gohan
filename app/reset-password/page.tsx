@@ -1,7 +1,6 @@
-
 "use client"
 
-import React, { useState, useTransition, useEffect } from "react"
+import React, { Suspense, useState, useTransition, useEffect } from "react"
 import Link from "next/link"
 import { useSearchParams, useRouter } from "next/navigation"
 
@@ -26,7 +25,7 @@ type ResetState = {
   error?: string
 }
 
-export default function ResetPasswordPage() {
+function ResetPasswordForm() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const token = searchParams.get('token')
@@ -84,7 +83,6 @@ export default function ResetPasswordPage() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      {/* Header */}
       <header className="border-b border-border bg-card">
         <div className="container mx-auto px-4">
           <div className="flex h-16 items-center">
@@ -100,7 +98,6 @@ export default function ResetPasswordPage() {
         </div>
       </header>
 
-      {/* Reset Form */}
       <main className="flex-1 flex items-center justify-center p-4">
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
@@ -203,12 +200,35 @@ export default function ResetPasswordPage() {
         </Card>
       </main>
 
-      {/* Footer */}
       <footer className="border-t border-border bg-card py-4">
         <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
           <p>&copy; 2026 HostPrime. All rights reserved.</p>
         </div>
       </footer>
     </div>
+  )
+}
+
+function ResetPasswordFallback() {
+  return (
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      <Card className="w-full max-w-md">
+        <CardHeader className="text-center">
+          <CardTitle className="text-2xl font-bold">Reset Password</CardTitle>
+          <CardDescription>Loading...</CardDescription>
+        </CardHeader>
+        <CardContent className="flex justify-center py-8">
+          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={<ResetPasswordFallback />}>
+      <ResetPasswordForm />
+    </Suspense>
   )
 }
