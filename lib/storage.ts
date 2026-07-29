@@ -140,7 +140,7 @@ export async function saveFileContent(key: string, content: string) {
         const command = new PutObjectCommand({
             Bucket: R2_BUCKET_NAME,
             Key: key,
-            Body: Buffer.from(content),
+            Body: content,
             ContentType: 'application/json',
         })
         await R2.send(command)

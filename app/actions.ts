@@ -51,8 +51,6 @@ export async function login(formData: FormData) {
   const password = (formData.get('password') as string || '').trim()
 
   console.log('Login attempt:', { email, passwordLength: password.length })
-  console.log('CWD:', process.cwd())
-  console.log('Users DB Path:', USERS_DB_PATH)
 
   try {
     const users = await getUsersData()
