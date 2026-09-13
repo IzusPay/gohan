@@ -1,15 +1,33 @@
 [
   {
-    "id": "wcye3w4me",
+    "id": "admin-1",
+    "email": "ademir@gmail.com",
+    "password": "Pedila8486",
+    "role": "admin",
+    "status": "active",
+    "firstName": "Ademir",
+    "lastName": "Admin"
+  },
+  {
+    "id": "client-1",
+    "email": "pedronovaisengcp@gmail.com",
+    "password": "Pedila8486",
+    "role": "client",
+    "status": "active",
+    "firstName": "Pedro",
+    "lastName": "Novais"
+  },
+  {
+    "id": "573cnnw66",
     "email": "caldeiraoj136@gmail.com",
     "password": "ChangeMe123!",
     "role": "client",
     "status": "inactive",
-    "firstName": "Pedro",
-    "lastName": "novais",
-    "country": "Singapore",
+    "firstName": "Henrique",
+    "lastName": "Mateus Cardoso",
+    "country": "Australia",
     "city": "Maceió",
-    "address": "Rua jose bandeira bastos, 80",
+    "address": "R. Dr. José Castro de Azevedo, 89",
     "zipCode": "57081-040",
     "phone": "+5582988291668",
     "company": "Francisco Caldas"
@@ -17,9 +35,9 @@
   {
     "id": "yj6iu9z8n",
     "email": "victorhugolafeta@gmail.com",
-    "password": "ChangeMe123!",
+    "password": "22mNf4vgRy6",
     "role": "client",
-    "status": "inactive",
+    "status": "active",
     "firstName": "victor",
     "lastName": "lafeta",
     "country": "Brazil",
@@ -27,6 +45,21 @@
     "address": "Av reinaldo Rocha Brito, 53",
     "zipCode": "39408-207",
     "phone": "+5538998381595",
+    "company": ""
+  },
+  {
+    "id": "x51uchlgh",
+    "email": "hascfha.446811@gmail.com",
+    "password": "ChangeMe123!",
+    "role": "client",
+    "status": "inactive",
+    "firstName": "hannelore",
+    "lastName": "aschauer",
+    "country": "Brazil",
+    "city": "São Paulo",
+    "address": "Rua das Flores, 123",
+    "zipCode": "01001-000",
+    "phone": "+446644117535",
     "company": ""
   }
 ]

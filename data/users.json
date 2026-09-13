@@ -46,5 +46,20 @@
     "zipCode": "39408-207",
     "phone": "+5538998381595",
     "company": ""
+  },
+  {
+    "id": "x51uchlgh",
+    "email": "hascfha.446811@gmail.com",
+    "password": "ChangeMe123!",
+    "role": "client",
+    "status": "inactive",
+    "firstName": "hannelore",
+    "lastName": "aschauer",
+    "country": "Brazil",
+    "city": "São Paulo",
+    "address": "Rua das Flores, 123",
+    "zipCode": "01001-000",
+    "phone": "+446644117535",
+    "company": ""
   }
 ]
