@@ -56,11 +56,11 @@ export default function CreateOrderForm() {
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="userEmail">Client Email</Label>
-              <Input 
-                id="userEmail" 
-                name="userEmail" 
-                defaultValue="pedronovaisengcp@gmail.com" 
-                required 
+              <Input
+                id="userEmail"
+                name="userEmail"
+                placeholder="client@email.com"
+                required
               />
             </div>
             <div className="space-y-2">

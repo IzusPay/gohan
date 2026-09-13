@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect } from 'react'
 import Link from 'next/link'
 import { format } from 'date-fns'
 import { ArrowLeft, Printer, Server } from 'lucide-react'
@@ -50,6 +51,15 @@ export default function InvoiceDetailView({ order, customer }: InvoiceDetailView
   const customerName = [customer.firstName, customer.lastName].filter(Boolean).join(' ') || 'Customer'
   const specs = [order.cpu, order.ram, order.storage].filter(Boolean)
 
+  // O nome sugerido ao salvar via Print/PDF vem do document.title
+  useEffect(() => {
+    const previousTitle = document.title
+    document.title = invoiceId
+    return () => {
+      document.title = previousTitle
+    }
+  }, [invoiceId])
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between print:hidden">
@@ -83,7 +93,7 @@ export default function InvoiceDetailView({ order, customer }: InvoiceDetailView
               <div>
                 <p className="text-xl font-bold">HostPrime</p>
                 <p className="text-sm text-muted-foreground">Premium VPS Hosting</p>
-                <p className="text-sm text-muted-foreground mt-2">pedronovaisengcp@gmail.com</p>
+                <p className="text-sm text-muted-foreground mt-2">billing@hostprime.com</p>
               </div>
             </div>
             <div className="text-left sm:text-right space-y-1">
