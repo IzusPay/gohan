@@ -38,8 +38,9 @@ function paymentLabel(method?: string) {
 
 export default function InvoiceDetailView({ order, customer }: InvoiceDetailViewProps) {
   const invoiceDate = new Date(order.createdAt || 0)
+  // Date-only strings (YYYY-MM-DD) must be parsed as local time, not UTC
   const nextBillingDate = order.nextBilling
-    ? new Date(order.nextBilling)
+    ? new Date(/^\d{4}-\d{2}-\d{2}$/.test(order.nextBilling) ? `${order.nextBilling}T00:00:00` : order.nextBilling)
     : new Date(invoiceDate.getTime())
   if (!order.nextBilling) {
     nextBillingDate.setMonth(nextBillingDate.getMonth() + 1)
