@@ -44,7 +44,7 @@ export default async function StoragePage() {
                 <Card key={order.id}>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
-                      <FolderOpen className="h-5 w-5 text-blue-500" />
+                      <FolderOpen className="h-5 w-5 text-primary" />
                       {order.planName}
                     </CardTitle>
                     <CardDescription>{order.subdomain}.hostprime.shop</CardDescription>
@@ -52,7 +52,7 @@ export default async function StoragePage() {
                   <CardContent>
                     <div className="space-y-4">
                       <div className="text-sm text-muted-foreground">
-                        <p>Storage: 10 GB (Shared)</p>
+                        <p>Storage: {order.storage || '10 GB (Shared)'}</p>
                         <p>Status: {order.status}</p>
                       </div>
                       <Link href={`/dashboard/hosting/${order.id}`} className="block">

@@ -187,5 +187,22 @@
     "paymentMethod": "credit_card",
     "cardLast4": "2985",
     "createdAt": "2026-09-12T21:23:00.000-03:00"
+  },
+  {
+    "id": "y81ppdtiy",
+    "type": "hosting",
+    "planName": "High-Capacity NVMe Storage",
+    "cpu": "Shared",
+    "ram": "Shared",
+    "storage": "80 GB NVMe SSD",
+    "price": "$8.00",
+    "ip": "Shared IP",
+    "subdomain": "poseme",
+    "userEmail": "posemeapp2026@gmail.com",
+    "nextBilling": "2026-10-13",
+    "status": "Active",
+    "paymentMethod": "credit_card",
+    "cardLast4": "2985",
+    "createdAt": "2026-09-13T12:00:00.000-03:00"
   }
 ]
