@@ -137,7 +137,7 @@ export default function InstancesView({ orders }: InstancesViewProps) {
         </div>
         <div>
           <Link href="/#pricing">
-            <Button size="sm" className="h-8 bg-orange-500 hover:bg-orange-600 text-white">
+            <Button size="sm" className="h-8 bg-primary hover:bg-primary/90 text-primary-foreground">
               Launch instances
             </Button>
           </Link>
@@ -200,14 +200,14 @@ export default function InstancesView({ orders }: InstancesViewProps) {
                       onChange={() => setSelectedInstanceId(order.id === selectedInstanceId ? null : order.id)}
                     />
                   </TableCell>
-                  <TableCell className="font-medium text-blue-600 hover:underline cursor-pointer">
+                  <TableCell className="font-medium text-primary hover:underline cursor-pointer">
                     {order.planName}
                   </TableCell>
                   <TableCell className="font-mono text-xs">{order.id}</TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
                       {order.status === 'Active' ? (
-                        <CheckCircle2 className="h-4 w-4 text-green-500" />
+                        <CheckCircle2 className="h-4 w-4 text-primary" />
                       ) : (
                         <AlertCircle className="h-4 w-4 text-yellow-500" />
                       )}
@@ -215,7 +215,7 @@ export default function InstancesView({ orders }: InstancesViewProps) {
                     </div>
                   </TableCell>
                   <TableCell>{order.cpu.split(' ')[0]}.medium</TableCell>
-                  <TableCell className="text-green-600">2/2 checks passed</TableCell>
+                  <TableCell className="text-primary">2/2 checks passed</TableCell>
                   <TableCell>us-east-1a</TableCell>
                   <TableCell>{order.ip || '-'}</TableCell>
                 </TableRow>

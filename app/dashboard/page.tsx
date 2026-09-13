@@ -27,10 +27,10 @@ export default async function DashboardPage() {
   const userOrders = orders.filter((order: any) => order.userEmail === email)
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col md:flex-row">
       <DashboardNav email={email || ''} />
 
-      <main className="flex-1 p-6">
+      <main className="flex-1 min-w-0 p-6">
         <InstancesView orders={userOrders} />
       </main>
     </div>

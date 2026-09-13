@@ -33,9 +33,9 @@ export default async function HostingPage({ params }: { params: Promise<{ id: st
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col md:flex-row">
       <DashboardNav email={email || ''} />
-      <main className="flex-1 p-6 h-[calc(100vh-64px)] overflow-hidden">
+      <main className="flex-1 min-w-0 p-6 h-[calc(100vh-64px)] md:h-screen overflow-hidden">
         <HostingManager order={order} />
       </main>
     </div>

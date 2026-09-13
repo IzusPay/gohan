@@ -85,10 +85,10 @@ export default async function AdminPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col md:flex-row">
       <DashboardNav email={email || ''} />
 
-      <main className="flex-1 p-6">
+      <main className="flex-1 min-w-0 p-6">
         <div className="flex flex-col gap-8">
           <div className="flex items-center justify-between">
             <div>

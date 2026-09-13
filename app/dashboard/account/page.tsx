@@ -17,10 +17,10 @@ export default async function AccountPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col md:flex-row">
       <DashboardNav email={email || ''} />
 
-      <main className="flex-1 container mx-auto px-4 py-8">
+      <main className="flex-1 min-w-0 container mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold">Account Settings</h1>
           <p className="text-muted-foreground mt-2">Manage your account preferences and security</p>

@@ -19,10 +19,10 @@ export default async function StoragePage() {
   const userOrders = orders.filter((o: any) => o.userEmail === email && o.type === 'hosting')
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col md:flex-row">
       <DashboardNav email={email} />
       
-      <main className="flex-1 p-6">
+      <main className="flex-1 min-w-0 p-6">
         <div className="max-w-6xl mx-auto space-y-8">
           <div>
             <h1 className="text-3xl font-bold">Storage Management</h1>
