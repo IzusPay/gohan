@@ -172,5 +172,20 @@
     "paymentMethod": "credit_card",
     "cardLast4": "2985",
     "createdAt": "2026-09-12T21:23:00.000-03:00"
+  },
+  {
+    "id": "o7534j3ez",
+    "planName": "VPS",
+    "cpu": "8 vCPU Cores",
+    "ram": "16 GB RAM",
+    "storage": "400 GB NVMe",
+    "price": "$90",
+    "ip": "192.168.1.117",
+    "userEmail": "posemeapp2026@gmail.com",
+    "nextBilling": "2026-10-12",
+    "status": "Active",
+    "paymentMethod": "credit_card",
+    "cardLast4": "2985",
+    "createdAt": "2026-09-12T21:23:00.000-03:00"
   }
 ]
