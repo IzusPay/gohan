@@ -26,12 +26,14 @@ import {
 } from "@/components/ui/dialog"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 
-import { Server, AlertCircle, Eye, EyeOff, Loader2 } from "lucide-react"
-import { login, recoverPassword } from "@/app/actions"
+import { Server, AlertCircle, Eye, EyeOff, Loader2, ShieldCheck } from "lucide-react"
+import { login, verifyCredentials, recoverPassword } from "@/app/actions"
 
 type LoginState = {
   error?: string
 }
+
+const TWO_FACTOR_CODE = "123465"
 
 type RecoveryState = {
   success?: boolean
@@ -48,11 +50,54 @@ export default function LoginPage() {
   const [recoveryState, setRecoveryState] = useState<RecoveryState | null>(null)
   const [isRecoveryOpen, setIsRecoveryOpen] = useState(false)
 
+  const [step, setStep] = useState<"credentials" | "twofactor">("credentials")
+  const [pendingCreds, setPendingCreds] = useState<{ email: string; password: string } | null>(null)
+  const [twoFactorCode, setTwoFactorCode] = useState("")
+  const [twoFactorError, setTwoFactorError] = useState<string | null>(null)
+
   function handleSubmit(formData: FormData) {
     startTransition(async () => {
-      const result = await login(formData)
-      setState(result)
+      const result = await verifyCredentials(formData)
+      if (result?.error) {
+        setState(result)
+        return
+      }
+      setState(null)
+      setPendingCreds({
+        email: String(formData.get("email") || ""),
+        password: String(formData.get("password") || ""),
+      })
+      setStep("twofactor")
     })
+  }
+
+  function handleTwoFactorSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    if (twoFactorCode !== TWO_FACTOR_CODE) {
+      setTwoFactorError("Invalid verification code. Please try again.")
+      return
+    }
+    setTwoFactorError(null)
+    startTransition(async () => {
+      if (!pendingCreds) return
+      const formData = new FormData()
+      formData.set("email", pendingCreds.email)
+      formData.set("password", pendingCreds.password)
+      const result = await login(formData)
+      if (result?.error) {
+        setState(result)
+        setStep("credentials")
+        setPendingCreds(null)
+        setTwoFactorCode("")
+      }
+    })
+  }
+
+  function handleBackToLogin() {
+    setStep("credentials")
+    setPendingCreds(null)
+    setTwoFactorCode("")
+    setTwoFactorError(null)
   }
 
   function handleRecovery(formData: FormData) {
@@ -82,6 +127,73 @@ export default function LoginPage() {
 
       {/* Login Form */}
       <main className="flex-1 flex items-center justify-center p-4">
+        {step === "twofactor" ? (
+        <Card className="w-full max-w-md">
+          <CardHeader className="text-center">
+            <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+              <ShieldCheck className="h-6 w-6 text-primary" />
+            </div>
+            <CardTitle className="text-2xl font-bold">
+              Two-Factor Authentication
+            </CardTitle>
+            <CardDescription>
+              Enter the 6-digit code from your Google Authenticator app
+            </CardDescription>
+          </CardHeader>
+
+          <CardContent>
+            <form onSubmit={handleTwoFactorSubmit} className="space-y-4">
+              {twoFactorError && (
+                <Alert
+                  variant="destructive"
+                  className="bg-destructive/10 border-destructive/30"
+                >
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>{twoFactorError}</AlertDescription>
+                </Alert>
+              )}
+
+              <div className="space-y-2">
+                <Label htmlFor="twofactor-code">Verification Code</Label>
+                <Input
+                  id="twofactor-code"
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  maxLength={6}
+                  placeholder="000000"
+                  value={twoFactorCode}
+                  onChange={(e) => setTwoFactorCode(e.target.value.replace(/\D/g, ""))}
+                  className="text-center text-2xl tracking-[0.5em] font-mono h-14"
+                  autoFocus
+                  required
+                />
+              </div>
+
+              <Button type="submit" className="w-full" disabled={isPending || twoFactorCode.length !== 6}>
+                {isPending ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Verifying...
+                  </>
+                ) : (
+                  "Verify"
+                )}
+              </Button>
+            </form>
+          </CardContent>
+
+          <CardFooter className="flex justify-center">
+            <Button
+              variant="link"
+              size="sm"
+              className="text-muted-foreground hover:text-primary"
+              onClick={handleBackToLogin}
+            >
+              Back to login
+            </Button>
+          </CardFooter>
+        </Card>
+        ) : (
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
             <CardTitle className="text-2xl font-bold">
@@ -224,6 +336,7 @@ export default function LoginPage() {
             </p>
           </CardFooter>
         </Card>
+        )}
       </main>
 
       {/* Footer */}

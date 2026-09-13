@@ -97,6 +97,31 @@ export async function login(formData: FormData) {
   return { error: 'Invalid email or password' }
 }
 
+// Valida email/senha sem criar sessao - usado na etapa 1 do login com 2FA
+export async function verifyCredentials(formData: FormData) {
+  const email = (formData.get('email') as string || '').trim()
+  const password = (formData.get('password') as string || '').trim()
+
+  try {
+    const users = await getUsersData()
+    const user = users.find((u: any) =>
+      u.email.toLowerCase() === email.toLowerCase() &&
+      u.password === password
+    )
+
+    if (!user) {
+      return { error: 'Invalid email or password' }
+    }
+    if (user.status === 'inactive') {
+      return { error: 'Account is inactive. Please contact support.' }
+    }
+    return { success: true }
+  } catch (error) {
+    console.error('Credential verification error:', error)
+    return { error: 'An unexpected error occurred' }
+  }
+}
+
 export async function registerUserAndOrder(userData: any, orderData: any) {
   try {
     const users = await getUsersData()

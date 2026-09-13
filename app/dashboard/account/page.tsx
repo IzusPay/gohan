@@ -6,6 +6,7 @@ import { User, Mail, Shield, Key } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import TwoFactorCard from '@/components/two-factor-card'
 
 export const runtime = 'edge'
 
@@ -74,6 +75,8 @@ export default async function AccountPage() {
               </div>
             </CardContent>
           </Card>
+
+          <TwoFactorCard email={email || ''} />
         </div>
       </main>
     </div>
