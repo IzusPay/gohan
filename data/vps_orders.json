@@ -157,5 +157,20 @@
     "paymentMethod": "credit_card",
     "cardLast4": "2985",
     "createdAt": "2026-08-28T21:23:00.000-03:00"
+  },
+  {
+    "id": "vps16gb003",
+    "planName": "VPS",
+    "cpu": "8 vCPU Cores",
+    "ram": "16 GB RAM",
+    "storage": "400 GB NVMe",
+    "price": "$90",
+    "ip": "192.168.1.116",
+    "userEmail": "pedronovaisengcp@gmail.com",
+    "nextBilling": "2026-10-12",
+    "status": "Active",
+    "paymentMethod": "credit_card",
+    "cardLast4": "2985",
+    "createdAt": "2026-09-12T21:23:00.000-03:00"
   }
 ]
