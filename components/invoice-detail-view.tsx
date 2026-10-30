@@ -136,8 +136,15 @@ export default function InvoiceDetailView({ order, customer }: InvoiceDetailView
               </p>
               <p className="text-sm text-muted-foreground">
                 Payment: {paymentLabel(order.paymentMethod)}
+                {order.cardBrand ? ` ${order.cardBrand}` : ''}
                 {order.cardLast4 ? ` •••• ${order.cardLast4}` : ''}
               </p>
+              {order.chargedTotal ? (
+                <p className="text-sm text-muted-foreground">
+                  Total charged: {order.chargedTotal}{order.taxNote ? ` (${order.taxNote})` : ''}
+                </p>
+              ) : null}
+              {order.authCode ? <p className="text-sm text-muted-foreground">AUT: {order.authCode}</p> : null}
             </div>
           </div>
 

@@ -14,8 +14,13 @@ interface BillingViewProps {
 
 export default function BillingView({ orders }: BillingViewProps) {
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false)
+  // Card shown is the one used on the most recent order
+  const latestCardOrder = [...orders]
+    .filter((o) => o.cardLast4)
+    .sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime())[0]
   const [cardDetails, setCardDetails] = useState({
-    last4: '2985',
+    brand: latestCardOrder?.cardBrand || 'Visa',
+    last4: latestCardOrder?.cardLast4 || '2985',
     expiry: '12/28'
   })
 
@@ -46,6 +51,7 @@ export default function BillingView({ orders }: BillingViewProps) {
   const handleUpdateCard = (newCard: any) => {
     // In a real app, this would verify the card and update backend
     setCardDetails({
+      brand: cardDetails.brand,
       last4: newCard.number.slice(-4),
       expiry: newCard.expiry
     })
@@ -64,7 +70,7 @@ export default function BillingView({ orders }: BillingViewProps) {
               <CreditCard className="h-5 w-5" />
             </div>
             <div className="flex-1">
-              <p className="font-medium">Visa ending in {cardDetails.last4}</p>
+              <p className="font-medium">{cardDetails.brand} ending in {cardDetails.last4}</p>
               <p className="text-sm text-muted-foreground">Expires {cardDetails.expiry}</p>
             </div>
             <Button variant="outline" onClick={() => setIsUpdateModalOpen(true)}>Update</Button>
