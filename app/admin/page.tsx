@@ -26,6 +26,7 @@ import {
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import CreateOrderForm from './create-order-form'
+import CreateChargeForm from './create-charge-form'
 import DashboardNav from '@/components/dashboard-nav'
 import UsersTable from '@/components/admin/users-table'
 import CreateUserDialog from '@/components/admin/create-user-dialog'
@@ -41,7 +42,9 @@ export default async function AdminPage() {
     redirect('/login')
   }
 
-  const orders = await getOrders()
+  const allOrders = await getOrders()
+  const orders = allOrders.filter((o: any) => o.type !== 'charge')
+  const charges = allOrders.filter((o: any) => o.type === 'charge')
   const users = await getAllUsers()
 
   const activeUsers = users.filter((u: any) => u.status !== 'inactive')
@@ -101,6 +104,7 @@ export default async function AdminPage() {
             <TabsList>
               <TabsTrigger value="overview">Overview</TabsTrigger>
               <TabsTrigger value="services">Services & Instances</TabsTrigger>
+              <TabsTrigger value="billing">Billing</TabsTrigger>
               <TabsTrigger value="clients">Client Management</TabsTrigger>
               <TabsTrigger value="leads">Leads (Inactive)</TabsTrigger>
             </TabsList>
@@ -256,6 +260,50 @@ export default async function AdminPage() {
                             </TableCell>
                           </TableRow>
                         ))
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="billing" className="space-y-4">
+              <CreateChargeForm users={activeUsers} instances={orders} />
+
+              <div className="flex flex-col gap-4">
+                <h2 className="text-xl font-bold">Charges</h2>
+                <div className="border rounded-md bg-card">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="bg-muted/50">
+                        <TableHead>Date</TableHead>
+                        <TableHead>Client Email</TableHead>
+                        <TableHead>Description</TableHead>
+                        <TableHead>Amount</TableHead>
+                        <TableHead>Total charged</TableHead>
+                        <TableHead>Card</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {charges.length === 0 ? (
+                        <TableRow>
+                          <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
+                            No charges created
+                          </TableCell>
+                        </TableRow>
+                      ) : (
+                        [...charges]
+                          .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+                          .map((charge: any) => (
+                            <TableRow key={charge.id}>
+                              <TableCell>{new Date(charge.createdAt).toLocaleString('pt-BR')}</TableCell>
+                              <TableCell>{charge.userEmail}</TableCell>
+                              <TableCell>{charge.planName}</TableCell>
+                              <TableCell>{charge.price}</TableCell>
+                              <TableCell>{charge.chargedTotal || '-'}</TableCell>
+                              <TableCell>{charge.cardLast4 ? `${charge.cardBrand || ''} •••• ${charge.cardLast4}` : '-'}</TableCell>
+                            </TableRow>
+                          ))
                       )}
                     </TableBody>
                   </Table>

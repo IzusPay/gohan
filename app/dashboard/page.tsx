@@ -24,7 +24,7 @@ export default async function DashboardPage() {
   // In `app/admin/page.tsx` I saw `orders.map` so it returns an array.
   // I'll filter by email here to be correct for the client view.
   
-  const userOrders = orders.filter((order: any) => order.userEmail === email)
+  const userOrders = orders.filter((order: any) => order.userEmail === email && order.type !== 'charge')
 
   return (
     <div className="min-h-screen bg-background flex flex-col md:flex-row">

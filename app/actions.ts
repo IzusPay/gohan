@@ -370,6 +370,39 @@ export async function createOrder(orderData: any) {
   }
 }
 
+export async function createCharge(chargeData: any) {
+  const cookieStore = await cookies()
+  const role = cookieStore.get('user_role')?.value
+
+  if (role !== 'admin') {
+    throw new Error('Unauthorized')
+  }
+
+  try {
+    const orders = await getOrdersData()
+    const instance = orders.find((o: any) => o.id === chargeData.instanceId)
+
+    // A charge is an invoice-only record: it shows in Billing, never as an instance
+    const newCharge = {
+      id: Math.random().toString(36).substr(2, 9),
+      type: 'charge',
+      ...chargeData,
+      planName: chargeData.description || instance?.planName || 'Service charge',
+      ip: instance?.ip,
+      status: 'Paid',
+      createdAt: chargeData.createdAt ? new Date(chargeData.createdAt).toISOString() : new Date().toISOString()
+    }
+
+    orders.push(newCharge)
+
+    await saveOrdersData(orders)
+    return { success: true }
+  } catch (error) {
+    console.error('Error creating charge:', error)
+    return { error: 'Failed to create charge' }
+  }
+}
+
 export async function upgradeInstance(instanceId: string, newPlan: any) {
   const cookieStore = await cookies()
   const role = cookieStore.get('user_role')?.value
