@@ -1,25 +1,8 @@
-import { Header } from "@/components/header"
-import { Hero } from "@/components/hero"
-import { Products } from "@/components/products"
-import { Stats } from "@/components/stats"
-import { Pricing } from "@/components/pricing"
-import { Features } from "@/components/features"
-import { CTA } from "@/components/cta"
-import { Footer } from "@/components/footer"
+import { redirect } from 'next/navigation'
 
-export default function HostPrimePage() {
-  return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      <main>
-        <Hero />
-        <Products />
-        <Stats />
-        <Pricing />
-        <Features />
-        <CTA />
-      </main>
-      <Footer />
-    </div>
-  )
+export const runtime = 'edge'
+
+// No landing page: the root opens the client panel (dashboard sends to /login when signed out)
+export default function Home() {
+  redirect('/dashboard')
 }
